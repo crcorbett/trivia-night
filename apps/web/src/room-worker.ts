@@ -265,7 +265,41 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
 
         const code = roomCodeFromPath(path.value);
         if (Option.isNone(code)) return yield* jsonResponse({ error: "Invalid room code" }, 400);
-        return yield* rooms.getByName(code.value).fetch(request);
+        const room = rooms.getByName(code.value);
+
+        if (request.headers.upgrade?.toLowerCase() === "websocket")
+          return yield* room.fetch(request);
+
+        if (request.method === "GET") {
+          return yield* room.getState(code.value).pipe(
+            Effect.matchEffect({
+              onFailure: (error) => jsonResponse({ error: error.reason }, 500),
+              onSuccess: jsonResponse,
+            }),
+          );
+        }
+
+        if (request.method !== "POST")
+          return yield* jsonResponse({ error: "Method not allowed" }, 405);
+
+        const body = yield* request.json.pipe(Effect.option);
+        if (Option.isNone(body)) return yield* jsonResponse({ error: "Invalid room action" }, 400);
+        return yield* Schema.decodeUnknownEffect(TriviaRoomAction)(body.value).pipe(
+          Effect.matchEffect({
+            onFailure: () => jsonResponse({ error: "Invalid room action" }, 400),
+            onSuccess: (action) =>
+              room.applyAction(code.value, action).pipe(
+                Effect.matchEffect({
+                  onFailure: (error) =>
+                    jsonResponse(
+                      { error: error.reason },
+                      error._tag === "TriviaRoomActionError" ? 409 : 500,
+                    ),
+                  onSuccess: jsonResponse,
+                }),
+              ),
+          }),
+        );
       }),
     };
   }),
