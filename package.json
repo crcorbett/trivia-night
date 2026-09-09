@@ -1,0 +1,76 @@
+{
+  "name": "trivia-night",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalogs": {
+      "effect": {
+        "effect": "4.0.0-beta.107",
+        "@effect/vitest": "4.0.0-beta.107"
+      },
+      "tanstack": {
+        "@tanstack/react-start": "1.168.50",
+        "@tanstack/react-router": "1.170.33"
+      },
+      "react": {
+        "react": "19.2.8",
+        "react-dom": "19.2.8",
+        "@types/react": "19.2.18",
+        "@types/react-dom": "19.2.7"
+      },
+      "typescript": {
+        "typescript": "7.0.2"
+      },
+      "testing": {
+        "vitest": "5.0.0"
+      },
+      "build": {
+        "vite": "8.2.2",
+        "@vitejs/plugin-react": "6.1.1"
+      },
+      "infrastructure": {
+        "@alchemy.run/cloudflare-runtime": "2.0.0-beta.76",
+        "alchemy": "2.0.0-beta.76"
+      }
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev",
+    "format:check": "oxfmt --check .",
+    "format": "oxfmt .",
+    "lint": "oxlint .",
+    "test:lint-rules": "bun test tools/oxlint/policy.test.ts",
+    "validate:harness-profile": "python3 tools/governance/validate_audit_artifacts.py --profile docs/governance/harness-profile.json",
+    "validate:governance": "python3 tools/governance/validate.py .",
+    "check-types": "tsc --noEmit -p tsconfig.infrastructure.json && turbo run check-types",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "knip": "knip",
+    "knip:production": "knip --production --config knip.production.ts --strict",
+    "changeset": "changeset",
+    "changeset:status": "changeset status",
+    "verification": "bun run validate:governance && bun run format:check && bun run lint && bun run test:lint-rules && bun run check-types && bun run knip && bun run knip:production && bun run test && bun run build"
+  },
+  "dependencies": {
+    "alchemy": "catalog:infrastructure",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.2",
+    "@types/bun": "1.4.2",
+    "knip": "6.35.0",
+    "oxfmt": "0.67.0",
+    "oxlint": "1.82.0",
+    "turbo": "2.10.12",
+    "typescript": "catalog:typescript",
+    "vitest": "catalog:testing"
+  },
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "packageManager": "bun@1.4.0"
+}

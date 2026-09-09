@@ -1,0 +1,85 @@
+{
+  "name": "@trivia-night/http-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./api": {
+      "@trivia-night/source": "./src/api.ts",
+      "types": "./dist/api.d.ts",
+      "default": "./dist/api.js"
+    },
+    "./group": {
+      "@trivia-night/source": "./src/group.ts",
+      "types": "./dist/group.d.ts",
+      "default": "./dist/group.js"
+    },
+    "./handlers": {
+      "@trivia-night/source": "./src/handlers.ts",
+      "types": "./dist/handlers.d.ts",
+      "default": "./dist/handlers.js"
+    },
+    "./server": {
+      "@trivia-night/source": "./src/server.ts",
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./client/service": {
+      "@trivia-night/source": "./src/client/service.ts",
+      "types": "./dist/client/service.d.ts",
+      "default": "./dist/client/service.js"
+    },
+    "./client/browser": {
+      "@trivia-night/source": "./src/client/browser.layer.ts",
+      "types": "./dist/client/browser.layer.d.ts",
+      "default": "./dist/client/browser.layer.js"
+    },
+    "./client/in-process": {
+      "@trivia-night/source": "./src/client/in-process.layer.ts",
+      "types": "./dist/client/in-process.layer.d.ts",
+      "default": "./dist/client/in-process.layer.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      "./api": {
+        "types": "./dist/api.d.ts",
+        "default": "./dist/api.js"
+      },
+      "./group": {
+        "types": "./dist/group.d.ts",
+        "default": "./dist/group.js"
+      },
+      "./server": {
+        "types": "./dist/server.d.ts",
+        "default": "./dist/server.js"
+      },
+      "./client/service": {
+        "types": "./dist/client/service.d.ts",
+        "default": "./dist/client/service.js"
+      },
+      "./client/browser": {
+        "types": "./dist/client/browser.layer.d.ts",
+        "default": "./dist/client/browser.layer.js"
+      },
+      "./client/in-process": {
+        "types": "./dist/client/in-process.layer.d.ts",
+        "default": "./dist/client/in-process.layer.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@trivia-night/domain": "workspace:*",
+    "effect": "4.0.0-beta.107"
+  },
+  "devDependencies": {
+    "@effect/vitest": "4.0.0-beta.107",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0"
+  }
+}

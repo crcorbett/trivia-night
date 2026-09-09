@@ -1,0 +1,94 @@
+{
+  "name": "@trivia-night/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./sections": {
+      "@trivia-night/source": "./src/sections.ts",
+      "types": "./dist/sections.d.ts",
+      "default": "./dist/sections.js"
+    },
+    "./room": {
+      "@trivia-night/source": "./src/room.ts",
+      "types": "./dist/room.d.ts",
+      "default": "./dist/room.js"
+    },
+    "./schemas": {
+      "@trivia-night/source": "./src/schemas.ts",
+      "types": "./dist/schemas.d.ts",
+      "default": "./dist/schemas.js"
+    },
+    "./errors": {
+      "@trivia-night/source": "./src/errors.ts",
+      "types": "./dist/errors.d.ts",
+      "default": "./dist/errors.js"
+    },
+    "./service": {
+      "@trivia-night/source": "./src/service.ts",
+      "types": "./dist/service.d.ts",
+      "default": "./dist/service.js"
+    },
+    "./live": {
+      "@trivia-night/source": "./src/live.layer.ts",
+      "types": "./dist/live.layer.d.ts",
+      "default": "./dist/live.layer.js"
+    },
+    "./test": {
+      "@trivia-night/source": "./src/test.layer.ts",
+      "types": "./dist/test.layer.d.ts",
+      "default": "./dist/test.layer.js"
+    },
+    "./testing/fixtures": {
+      "@trivia-night/source": "./src/__testing__/fixtures.ts",
+      "types": "./dist/__testing__/fixtures.d.ts",
+      "default": "./dist/__testing__/fixtures.js"
+    },
+    "./testing/observations": {
+      "@trivia-night/source": "./src/__testing__/observations.ts",
+      "types": "./dist/__testing__/observations.d.ts",
+      "default": "./dist/__testing__/observations.js"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      "./sections": {
+        "types": "./dist/sections.d.ts",
+        "default": "./dist/sections.js"
+      },
+      "./room": {
+        "types": "./dist/room.d.ts",
+        "default": "./dist/room.js"
+      },
+      "./schemas": {
+        "types": "./dist/schemas.d.ts",
+        "default": "./dist/schemas.js"
+      },
+      "./errors": {
+        "types": "./dist/errors.d.ts",
+        "default": "./dist/errors.js"
+      },
+      "./service": {
+        "types": "./dist/service.d.ts",
+        "default": "./dist/service.js"
+      },
+      "./live": {
+        "types": "./dist/live.layer.d.ts",
+        "default": "./dist/live.layer.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "effect": "4.0.0-beta.107"
+  },
+  "devDependencies": {
+    "@effect/vitest": "4.0.0-beta.107",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0"
+  }
+}

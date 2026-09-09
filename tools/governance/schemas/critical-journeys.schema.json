@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "journeys"],
+  "properties": {
+    "version": { "const": 1 },
+    "journeys": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "./harness/critical-journey.schema.json" }
+    }
+  }
+}

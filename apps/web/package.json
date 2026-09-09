@@ -1,0 +1,33 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build && tsc --noEmit",
+    "build:cloudflare": "vite build --config vite.cloudflare.config.ts && tsc --noEmit",
+    "check-types": "vite build && tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "catalog:tanstack",
+    "@tanstack/react-start": "catalog:tanstack",
+    "@trivia-night/domain": "workspace:*",
+    "@trivia-night/http-api": "workspace:*",
+    "@trivia-night/rpc": "workspace:*",
+    "effect": "catalog:effect",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "devDependencies": {
+    "@alchemy.run/cloudflare-runtime": "catalog:infrastructure",
+    "@cloudflare/workers-types": "5.20260908.1",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@vitejs/plugin-react": "catalog:build",
+    "typescript": "catalog:typescript",
+    "vite": "catalog:build",
+    "vitest": "catalog:testing"
+  }
+}

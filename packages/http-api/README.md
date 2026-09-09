@@ -1,0 +1,31 @@
+# `@trivia-night/http-api`
+
+Effect HTTP API transport over `@trivia-night/domain`. Browser clients use Fetch;
+server loaders compose the in-process client and never loop back over HTTP. The
+catalogue is available at `GET /api/sections` and
+`GET /api/sections/:id`.
+
+## Exports
+
+- `./api`: public HTTP API contract.
+- `./group`: public endpoint group.
+- `./handlers`: server handler Layer.
+- `./server`: server route composition.
+- `./client/service`: public client service contract.
+- `./client/browser`: browser Fetch Layer.
+- `./client/in-process`: in-process server-loader Layer.
+
+## Documentation impact
+
+Public HTTP changes update the repository API architecture owner and affected
+critical journeys/proof in the same slice.
+
+## Runbook applicability
+
+Provider operations, authority, and runbooks remain repository-owned. Add or
+update a target-owned runbook only when an operation or deployment changes.
+
+## Non-claims
+
+This package makes no deployment, provider-state, external-route, or
+packed-publisher claim.

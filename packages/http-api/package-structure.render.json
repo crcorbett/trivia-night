@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "kind": "http-api",
+  "packageName": "@trivia-night/http-api",
+  "domainPackage": "@trivia-night/domain",
+  "sourceCondition": "@trivia-night/source",
+  "versionSnapshot": {
+    "resolvedAt": "2026-09-09",
+    "sha256": "c78fb0d47a97637cc5096ff11d692ae1e32dc73a739d674704f5e26ad7495155"
+  },
+  "officialSources": {
+    "siblingRepository": "the sibling Site repository package.json and bun.lock",
+    "npmRegistry": "https://registry.npmjs.org/",
+    "effect": "https://www.npmjs.com/package/effect",
+    "tanstackStart": "https://www.npmjs.com/package/@tanstack/react-start",
+    "alchemy": "https://www.npmjs.com/package/alchemy",
+    "alchemyCloudflare": "https://v2.alchemy.run/cloudflare/",
+    "cloudflareWorkers": "https://developers.cloudflare.com/workers/"
+  },
+  "selectedVersions": {
+    "effect": "4.0.0-beta.107",
+    "@effect/platform-bun": "4.0.0-beta.107",
+    "@effect/platform-node": "4.0.0-beta.107",
+    "@effect/vitest": "4.0.0-beta.107",
+    "@tanstack/react-start": "1.168.50",
+    "@tanstack/react-router": "1.170.33",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "7.0.2",
+    "vite": "8.2.2",
+    "vitest": "5.0.0",
+    "turbo": "2.10.12",
+    "oxlint": "1.82.0",
+    "oxfmt": "0.67.0",
+    "knip": "6.35.0",
+    "bun": "1.4.0",
+    "@changesets/cli": "3.0.2",
+    "@types/bun": "1.4.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.1.1",
+    "alchemy": "2.0.0-beta.76"
+  },
+  "compatibilityDecisions": [
+    {
+      "id": "effect-ecosystem",
+      "status": "qualified",
+      "decision": "Select one exact Effect v4 beta version across Effect ecosystem packages.",
+      "evidence": "The npm registry resolved Effect 4.0.0-beta.107 for the package line, and the matching tagged upstream source is recorded under .references/effect. The repository still requires its own install, typecheck, test, and build receipt."
+    },
+    {
+      "id": "tanstack-start",
+      "status": "qualified",
+      "decision": "Select Start and Router independently and disable verbatimModuleSyntax at the app boundary.",
+      "evidence": "The sibling Site repository uses this exact TanStack version line with Vite and the TanStack Start plugin."
+    },
+    {
+      "id": "alchemy-cloudflare",
+      "status": "qualified",
+      "decision": "Use the exact Alchemy beta and matching Cloudflare runtime package resolved for this repository.",
+      "evidence": "The npm registry resolved Alchemy 2.0.0-beta.76 and the matching Cloudflare runtime package; the matching tagged upstream source is recorded under .references/alchemy. No provider deployment is implied or performed by this snapshot."
+    }
+  ],
+  "configDigests": {
+    "package.json": "508ca94e0880a263d6ba86e1a18626d7b51d0e6b03c0a0eaf709e2c4d06112aa",
+    "tsconfig.json": "6414393bb81d56dc122eb6dd5e0927ee5009a8dbbf602ce51411c9fdfa2dc50f",
+    "tsconfig.build.json": "66914f9a522296b128735316a7c57803f28b32bf7df850ed17db1e21dd9fa55c",
+    "vitest.config.ts": "0be6a110349188c59f6651c3e6cc19543b37c18cb1d8b9c4d40666709122798e"
+  },
+  "limitations": [
+    "Structural rendering does not prove installed dependency, declaration, runtime, or packed-consumer behavior."
+  ],
+  "nonClaims": ["Selected versions are not claimed to remain latest."]
+}

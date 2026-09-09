@@ -1,0 +1,149 @@
+{
+  "$schema": "./documentation-map.schema.json",
+  "version": 1,
+  "router": "docs/README.md",
+  "owners": [
+    {
+      "semanticKey": "repository-architecture",
+      "class": "architecture",
+      "path": "ARCHITECTURE.md",
+      "owner": "repository maintainers",
+      "status": "current",
+      "reviewTriggers": ["workspace or runtime boundary changes"],
+      "retireWhen": "a successor architecture owner is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "cloudflare-alchemy-architecture",
+      "class": "architecture",
+      "path": "docs/architecture/cloudflare-alchemy.md",
+      "owner": "infrastructure maintainers",
+      "status": "current",
+      "reviewTriggers": ["Alchemy, Cloudflare, stage, or desired topology changes"],
+      "retireWhen": "Cloudflare deployment support is removed",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "package-ownership",
+      "class": "architecture",
+      "path": "docs/architecture/package-ownership.md",
+      "owner": "package maintainers",
+      "status": "current",
+      "reviewTriggers": ["package ownership or export boundaries change"],
+      "retireWhen": "a successor package-ownership owner is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "effect-services",
+      "class": "architecture",
+      "path": "docs/architecture/effect-services.md",
+      "owner": "Effect maintainers",
+      "status": "current",
+      "reviewTriggers": ["Effect service, Layer, schema, or error contracts change"],
+      "retireWhen": "Effect services are removed or a successor owner is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "transport-boundaries",
+      "class": "architecture",
+      "path": "docs/architecture/transports.md",
+      "owner": "transport maintainers",
+      "status": "current",
+      "reviewTriggers": ["public HTTP or RPC contracts, clients, handlers, or routes change"],
+      "retireWhen": "RPC and HTTP transports are removed",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "verification-gate",
+      "class": "standard",
+      "path": "docs/architecture/testing-and-quality.md",
+      "owner": "verification maintainers",
+      "status": "current",
+      "reviewTriggers": ["verification commands, controls, or proof boundaries change"],
+      "retireWhen": "a successor verification owner is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "operational-procedures",
+      "class": "runbook-index",
+      "path": "docs/runbooks/README.md",
+      "owner": "operations maintainers",
+      "status": "current",
+      "reviewTriggers": ["a consequential operation or rollback changes"],
+      "retireWhen": "operations cease or a successor index is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "critical-journeys",
+      "class": "journey-index",
+      "path": "docs/critical-journeys/README.md",
+      "owner": "product maintainers",
+      "status": "current",
+      "reviewTriggers": ["consumer-visible behavior changes"],
+      "retireWhen": "the product has no consumer-visible journeys",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "proof-contract",
+      "class": "proof-index",
+      "path": "docs/proof/README.md",
+      "owner": "verification maintainers",
+      "status": "current",
+      "reviewTriggers": ["proof claims or release identity changes"],
+      "retireWhen": "a successor proof contract is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "authority-model",
+      "class": "authority",
+      "path": "docs/governance/authority.md",
+      "owner": "repository maintainers",
+      "status": "current",
+      "reviewTriggers": ["identity, capability, approval, or revocation changes"],
+      "retireWhen": "the repository has no consequential operations",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "repository-harness-profile",
+      "class": "governance-profile",
+      "path": "docs/governance/harness-profile.json",
+      "owner": "repository maintainers",
+      "status": "current",
+      "reviewTriggers": [
+        "repository purpose, topology, commands, journeys, boundaries, lifecycle, or harness exceptions change"
+      ],
+      "retireWhen": "the repository no longer uses the shared harness contract",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "repository-audits",
+      "class": "audit-index",
+      "path": "docs/audits/README.md",
+      "owner": "repository maintainers",
+      "status": "current",
+      "reviewTriggers": ["audit schema, finding lifecycle, or acceptance handoff changes"],
+      "retireWhen": "a successor audit owner is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "evidence-lifecycle",
+      "class": "evidence",
+      "path": "docs/evidence/README.md",
+      "owner": "verification maintainers",
+      "status": "current",
+      "reviewTriggers": ["evidence retention or provenance changes"],
+      "retireWhen": "a successor evidence owner is adopted",
+      "replacedBy": null
+    },
+    {
+      "semanticKey": "upstream-implementation-references",
+      "class": "reference",
+      "path": ".references/README.md",
+      "owner": "repository maintainers",
+      "status": "current",
+      "reviewTriggers": ["Effect or Alchemy version, submodule, or source-guidance changes"],
+      "retireWhen": "the repository no longer relies on pinned upstream source guidance",
+      "replacedBy": null
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "status",
+    "invariant",
+    "target",
+    "captureLimitBytes",
+    "capturedBytes",
+    "truncated",
+    "excerpt",
+    "details",
+    "recovery",
+    "postcondition",
+    "limitations",
+    "nonClaims"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "status": { "enum": ["passed", "failed", "blocked", "inconclusive"] },
+    "invariant": { "type": "string", "minLength": 1 },
+    "target": { "type": "string", "minLength": 1 },
+    "captureLimitBytes": { "type": "integer", "minimum": 1 },
+    "capturedBytes": { "type": "integer", "minimum": 0 },
+    "truncated": { "type": "boolean" },
+    "excerpt": { "type": "string" },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "recovery": { "type": "string", "minLength": 1 },
+    "postcondition": { "type": "string", "minLength": 1 },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "nonClaims": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+  }
+}

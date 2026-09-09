@@ -1,0 +1,21 @@
+{
+  "$schema": "./proof-packet.schema.json",
+  "schemaVersion": 1,
+  "claim": "Replace with one bounded, testable claim.",
+  "artifact": {
+    "identity": "replace-with-immutable-artifact-identity",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "boundary": "replace-with-observed-boundary",
+  "journeys": ["replace-with-critical-journey-id"],
+  "receipts": [
+    {
+      "path": "replace-with-receipt-path",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "risks": ["replace-with-residual-risk"],
+  "limitations": ["replace-with-what-the-evidence-did-not-establish"],
+  "nonClaims": ["replace-with-explicit-non-claim"],
+  "rollback": "replace-with-last-known-good-and-reversal"
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "router", "owners"],
+  "properties": {
+    "version": { "const": 1 },
+    "router": { "const": "docs/README.md" },
+    "owners": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "semanticKey",
+          "class",
+          "path",
+          "owner",
+          "status",
+          "reviewTriggers",
+          "retireWhen",
+          "replacedBy"
+        ],
+        "properties": {
+          "semanticKey": { "type": "string", "minLength": 1 },
+          "class": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["current", "superseded", "archived"] },
+          "reviewTriggers": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "retireWhen": { "type": "string", "minLength": 1 },
+          "replacedBy": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

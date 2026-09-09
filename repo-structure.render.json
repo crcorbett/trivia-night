@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "phase": "bootstrapped",
+  "name": "trivia-night",
+  "scope": "@trivia-night",
+  "sourceCondition": "@trivia-night/source",
+  "versionSnapshot": {
+    "resolvedAt": "2026-09-09",
+    "sha256": "c78fb0d47a97637cc5096ff11d692ae1e32dc73a739d674704f5e26ad7495155"
+  },
+  "officialSources": {
+    "siblingRepository": "the sibling Site repository package.json and bun.lock",
+    "npmRegistry": "https://registry.npmjs.org/",
+    "effect": "https://www.npmjs.com/package/effect",
+    "tanstackStart": "https://www.npmjs.com/package/@tanstack/react-start",
+    "alchemy": "https://www.npmjs.com/package/alchemy",
+    "alchemyCloudflare": "https://v2.alchemy.run/cloudflare/",
+    "cloudflareWorkers": "https://developers.cloudflare.com/workers/"
+  },
+  "selectedVersions": {
+    "effect": "4.0.0-beta.107",
+    "@effect/platform-bun": "4.0.0-beta.107",
+    "@effect/platform-node": "4.0.0-beta.107",
+    "@effect/vitest": "4.0.0-beta.107",
+    "@tanstack/react-start": "1.168.50",
+    "@tanstack/react-router": "1.170.33",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "7.0.2",
+    "vite": "8.2.2",
+    "vitest": "5.0.0",
+    "turbo": "2.10.12",
+    "oxlint": "1.82.0",
+    "oxfmt": "0.67.0",
+    "knip": "6.35.0",
+    "bun": "1.4.0",
+    "@changesets/cli": "3.0.2",
+    "@types/bun": "1.4.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.1.1",
+    "alchemy": "2.0.0-beta.76"
+  },
+  "compatibilityDecisions": [
+    {
+      "id": "effect-ecosystem",
+      "status": "qualified",
+      "decision": "Select one exact Effect v4 beta version across Effect ecosystem packages.",
+      "evidence": "The npm registry resolved Effect 4.0.0-beta.107 for the package line, and the matching tagged upstream source is recorded under .references/effect. The repository still requires its own install, typecheck, test, and build receipt."
+    },
+    {
+      "id": "tanstack-start",
+      "status": "qualified",
+      "decision": "Select Start and Router independently and disable verbatimModuleSyntax at the app boundary.",
+      "evidence": "The sibling Site repository uses this exact TanStack version line with Vite and the TanStack Start plugin."
+    },
+    {
+      "id": "alchemy-cloudflare",
+      "status": "qualified",
+      "decision": "Use the exact Alchemy beta and matching Cloudflare runtime package resolved for this repository.",
+      "evidence": "The npm registry resolved Alchemy 2.0.0-beta.76 and the matching Cloudflare runtime package; the matching tagged upstream source is recorded under .references/alchemy. No provider deployment is implied or performed by this snapshot."
+    }
+  ],
+  "skillBaseline": {
+    "skills": {
+      "docs-maintainer": {
+        "entryCount": 18,
+        "treeDigest": "20f3aa01fc690565e4107165bece3420748d6eaeab4433f6aca2698fd64f547b"
+      },
+      "effect-client-wrapper": {
+        "entryCount": 2,
+        "treeDigest": "12b2550b49572248fd04723a2666c8e78abc77989e02b25cbb0145ac11f4263a"
+      },
+      "package-structure": {
+        "entryCount": 50,
+        "treeDigest": "3885b3fae6da0f98e6f8f1ea6e1e61e92763895eb78b3471f2f8a9afd30a8a46"
+      },
+      "prd-implementer": {
+        "entryCount": 2,
+        "treeDigest": "355c6be2e6a6fbf2bfdf215e91a03b7e828052c8ce63c6c900b619983197e9a2"
+      },
+      "prd-review": {
+        "entryCount": 2,
+        "treeDigest": "b334bbd7740efcd9ba70df15897418f94b88ff04e4c6c86a2b4f206c7113084a"
+      },
+      "prd-writer": {
+        "entryCount": 2,
+        "treeDigest": "b99899a9e199e3bdf7fc45c066be76203c8dd795d0929e112b432f0e359dd838"
+      }
+    },
+    "generatedOverlays": [
+      ".agents/skills/docs-maintainer/references/repository-profile.md",
+      ".agents/skills/package-structure/references/repository-profile.md"
+    ],
+    "claudeLinks": {
+      "docs-maintainer": "../../.agents/skills/docs-maintainer",
+      "effect-client-wrapper": "../../.agents/skills/effect-client-wrapper",
+      "package-structure": "../../.agents/skills/package-structure",
+      "prd-implementer": "../../.agents/skills/prd-implementer",
+      "prd-review": "../../.agents/skills/prd-review",
+      "prd-writer": "../../.agents/skills/prd-writer"
+    }
+  },
+  "configDigests": {
+    "package.json": "5564bc6c01e8edc182e2645a748e94bf2e76f696c88c1be8f437351e5ba63c77",
+    "tsconfig.base.json": "737e42f160918b1deeabd495b6bd7cbbd13cc0265330ab81fbfea9a704972af8",
+    "tsconfig.infrastructure.json": "f5dad1f46e435bdcbd27506966f0c0fdbbd9c86d2803185f11e9436da04a66bd",
+    "turbo.json": "f4fea8105932e3018d64927e2f837560a3b801c1ec9bf315e01deb127c5576ff",
+    "oxlint.config.ts": "4fe2100d534084c96b57c51b71c0a66bd81eb0fa9ef8c0c62d0a3710d847ae85",
+    "oxfmt.config.ts": "1a2b8eb761779f75e164708cd4c050a68c411b0d607e2822b78068f58549aff6",
+    "vitest.config.ts": "e2d82ea95f62b4445f5738c567596ac2df83e1d3088b0c6d5c9bcc89cbb213bc",
+    "knip.ts": "b34a56dae8b30ab346af352406b8a37b33bded115959ac99a4f0151de7a3685e",
+    "alchemy.run.ts": "60275dccec406384e1c05f8f90d1a43d380ff1ec015496c60a88bc4a786203dc",
+    "tools/oxlint/policy.ts": "c4ba8d906eed74d282ec4661f612861c397c86ff69deb32ec98e70184156cc74",
+    "docs/governance/harness-profile.json": "ad07bb8e4489a2b2df0aa71acdb7aaa50e3ad9c7b205c3579ca7969020d4383f",
+    "tools/governance/validate_audit_artifacts.py": "bb6d416fc120d5755857c310214cb65ea619d5fd33b72e9268570e8942dda936",
+    "tools/governance/finalize_repository_receipt.py": "8dbf8bd310afb236571234cc7eaac1bfd88207ee67b8f0bebcfcc3d211528488"
+  },
+  "lockfile": {
+    "path": "bun.lock",
+    "sha256": "b311125b11e4148ffe5e8ec1de6afea568d6eeda238c31d89ef4fec3253f9ad4",
+    "status": "generated",
+    "owner": "bun install"
+  },
+  "limitations": [
+    "Rendering proves template structure only; install, typecheck, tests, build, and provider behavior require separate receipts."
+  ],
+  "nonClaims": [
+    "Selected versions are not claimed to remain latest.",
+    "No Cloudflare resource was planned, deployed, or read back."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "1",
+  "repository": "trivia-night",
+  "purpose": "Live interactive 60-minute birthday trivia app with TanStack Start/Vite, an Effect domain, and a Cloudflare room Worker.",
+  "lifecyclePhase": "active",
+  "identitySource": "git rev-parse HEAD, git status --short --branch, and repo-structure.render.json",
+  "owners": {
+    "docsRouter": "docs/README.md",
+    "architecture": ["ARCHITECTURE.md", "docs/architecture/"],
+    "standards": ["docs/standards/"],
+    "readmes": ["README.md", "apps/**/README.md", "packages/**/README.md"],
+    "generatedReference": ["docs/documentation-map.json", "repo-structure.render.json"],
+    "runbooks": ["docs/runbooks/"],
+    "proof": ["docs/proof/"],
+    "evidence": ["docs/evidence/"],
+    "activeSpecs": ["docs/product-specs/"],
+    "activePlans": ["docs/exec-plans/active/"],
+    "archives": ["docs/exec-plans/completed/", "docs/evidence/failed/"],
+    "skills": [".agents/skills/"],
+    "agentGuidance": ["AGENTS.md"]
+  },
+  "commands": {
+    "documentation": ["python3 tools/governance/validate.py ."],
+    "skills": ["python3 tools/governance/validate.py ."],
+    "focused": ["bun run test:lint-rules", "bun run check-types", "bun run test", "bun run build"],
+    "closeout": ["bun run verification"]
+  },
+  "representativeJobs": [
+    {
+      "id": "WEB-AGENDA",
+      "consumer": "Browser user",
+      "acceptedOutcome": "The home route renders the seven-section 60-minute trivia agenda.",
+      "owningPaths": [
+        "apps/web/",
+        "packages/domain/src/sections.ts",
+        "docs/critical-journeys/journeys.json"
+      ]
+    },
+    {
+      "id": "ROOM-LOCAL-REHEARSAL",
+      "consumer": "Host, player, and display browsers",
+      "acceptedOutcome": "A local room can join teams, start, advance, score, and finish while all views share state.",
+      "owningPaths": [
+        "apps/web/src/lib/room.ts",
+        "apps/web/src/routes/",
+        "packages/domain/src/room.ts"
+      ]
+    },
+    {
+      "id": "HTTP-SECTIONS",
+      "consumer": "HTTP API consumer",
+      "acceptedOutcome": "The HTTP boundary returns a Schema-decoded trivia section catalogue.",
+      "owningPaths": ["packages/http-api/", "packages/domain/"]
+    },
+    {
+      "id": "RPC-SECTIONS",
+      "consumer": "RPC consumer",
+      "acceptedOutcome": "The RPC client invokes the Schema-owned section operations through its handler Layer.",
+      "owningPaths": ["packages/rpc/", "packages/domain/"]
+    }
+  ],
+  "criticalJourneyOwner": "docs/critical-journeys/journeys.json",
+  "boundaryFacts": [
+    "The home, host, join, and display routes are owned by apps/web.",
+    "The domain owns section and room Schemas, typed failures, and the pure room reducer.",
+    "Browser HTTP uses Fetch; server loaders use the in-process HTTP client; live room state uses the Worker WebSocket/HTTP adapter.",
+    "Alchemy and Cloudflare state requires approved provider readback; repository configuration owns desired state only.",
+    "Doppler may inject future provider credentials at command runtime; no repository secret file is an authority source.",
+    "Pinned Effect and Alchemy source references are read-only Git submodules under .references/."
+  ],
+  "exclusions": [
+    "Generated route trees, dependencies, build output, caches, binaries, secret values, live provider inventories, and inaccessible external systems."
+  ],
+  "nonClaims": [
+    "Local verification does not prove preview, production, provider, release, deployment, or publication behaviour.",
+    "The local room rehearsal does not prove cross-device remote WebSocket behaviour.",
+    "Alchemy configuration is desired state and does not prove a deployed Cloudflare resource."
+  ],
+  "exceptions": []
+}

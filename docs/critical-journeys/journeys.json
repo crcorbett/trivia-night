@@ -1,0 +1,97 @@
+{
+  "$schema": "../../tools/governance/schemas/critical-journeys.schema.json",
+  "version": 1,
+  "journeys": [
+    {
+      "id": "WEB-AGENDA",
+      "actorOrConsumer": "Browser user",
+      "boundary": "TanStack Start trivia agenda route",
+      "startingState": "A locally bootstrapped repository with the web app available.",
+      "inputs": ["GET /"],
+      "stepsOrProcedureOwner": "docs/architecture/testing-and-quality.md",
+      "expectedBehavior": [
+        "The page shows the seven named sections and the 60-minute session timing."
+      ],
+      "expectedSideEffects": ["No unexpected durable side effect."],
+      "preservedInvariants": [
+        "The displayed running order comes from the domain section catalogue."
+      ],
+      "oracle": "The rendered page contains all seven section titles, seven durations, and the 60-minute session summary without a fatal runtime error.",
+      "environment": "local",
+      "authority": "none",
+      "evidence": ["docs/proof/"],
+      "nonClaims": ["Local proof does not establish a deployed provider route."]
+    },
+    {
+      "id": "ROOM-LOCAL-REHEARSAL",
+      "actorOrConsumer": "Host, player, and display browsers",
+      "boundary": "Browser room adapter",
+      "startingState": "The app runs without VITE_ROOM_API_URL, so local BroadcastChannel/localStorage rehearsal is selected.",
+      "inputs": [
+        "GET /host",
+        "GET /join/RAE60",
+        "GET /display/RAE60",
+        "Join a team",
+        "Start room",
+        "Advance section",
+        "Add score",
+        "Finish room"
+      ],
+      "stepsOrProcedureOwner": "apps/web/src/lib/room.ts and packages/domain/src/room.ts",
+      "expectedBehavior": [
+        "The host can control the room and the player/display views receive the same serialisable state."
+      ],
+      "expectedSideEffects": [
+        "Only the named local browser storage key and BroadcastChannel are used."
+      ],
+      "preservedInvariants": [
+        "Every transition is accepted or rejected by the shared pure room reducer."
+      ],
+      "oracle": "The three views show matching room status, current section, joined team, and score after each action; invalid room codes fail closed.",
+      "environment": "local browser rehearsal",
+      "authority": "none",
+      "evidence": ["docs/proof/"],
+      "nonClaims": [
+        "Local rehearsal does not establish remote Worker, Durable Object, multi-device, or provider behaviour."
+      ]
+    },
+    {
+      "id": "HTTP-SECTIONS",
+      "actorOrConsumer": "HTTP API consumer",
+      "boundary": "HTTP trivia section catalogue",
+      "startingState": "The domain and HTTP API packages are available in-process.",
+      "inputs": ["GET /api/sections", "GET /api/sections/time-capsule"],
+      "stepsOrProcedureOwner": "docs/architecture/testing-and-quality.md",
+      "expectedBehavior": [
+        "The HTTP boundary returns the seven-section catalogue and a single section through Schema-owned responses."
+      ],
+      "expectedSideEffects": ["No unexpected durable side effect."],
+      "preservedInvariants": ["Unknown ingress decodes at the HTTP boundary."],
+      "oracle": "The response passes the owning encoded response Schema and an invalid section identifier fails closed.",
+      "environment": "local in-process transport",
+      "authority": "none",
+      "evidence": ["docs/proof/"],
+      "nonClaims": ["In-process transport proof does not establish a deployed public route."]
+    },
+    {
+      "id": "RPC-SECTIONS",
+      "actorOrConsumer": "RPC consumer",
+      "boundary": "RPC trivia section operations",
+      "startingState": "The domain and RPC packages are available in-process.",
+      "inputs": ["ListTriviaSections RPC request", "GetTriviaSection RPC request"],
+      "stepsOrProcedureOwner": "docs/architecture/testing-and-quality.md",
+      "expectedBehavior": [
+        "The RPC client invokes the Schema-owned operations through its handler Layer."
+      ],
+      "expectedSideEffects": ["No unexpected durable side effect."],
+      "preservedInvariants": [
+        "The handler delegates to the domain service without a raw client escape hatch."
+      ],
+      "oracle": "The client results pass the owning response Schemas and the invalid fixture fails closed.",
+      "environment": "local in-process RPC",
+      "authority": "none",
+      "evidence": ["docs/proof/"],
+      "nonClaims": ["In-process RPC proof does not establish deployed network reachability."]
+    }
+  ]
+}

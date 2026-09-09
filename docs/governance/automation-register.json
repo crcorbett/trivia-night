@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "ci-verification",
+      "owner": "repository maintainers",
+      "signal": "change proposed to the repository",
+      "authority": "read repository and execute repository verification",
+      "durableState": "CI run and bounded receipts",
+      "proof": "ordered verification gate",
+      "escalation": "repository maintainers",
+      "carryingCost": "CI runtime and control maintenance",
+      "reviewTrigger": "verification commands or runner epoch changes",
+      "retireWhen": "a successor verification owner is adopted"
+    }
+  ]
+}

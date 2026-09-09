@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "source-policy",
+      "owner": "tools/oxlint",
+      "findingClass": "forbidden source-boundary pattern",
+      "durableOwner": "tools/oxlint policy and fixtures",
+      "carryingCost": "lint runtime and false-positive review",
+      "reviewTrigger": "source boundary or parser changes",
+      "retireWhen": "an equivalent upstream rule is adopted",
+      "supersedes": []
+    }
+  ]
+}

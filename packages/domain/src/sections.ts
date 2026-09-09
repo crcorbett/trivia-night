@@ -1,0 +1,113 @@
+import { TriviaSectionId } from "./schemas";
+import type { TriviaSection } from "./schemas";
+
+export const triviaSections = [
+  {
+    id: TriviaSectionId.make("time-capsule"),
+    order: 1,
+    title: "Two Time Capsules",
+    theme: "1966 and 1984",
+    durationMinutes: 8,
+    mode: "rapid-fire",
+    format: "Short-answer warm-up",
+    topics: ["1966", "1984", "birthday memories"],
+  },
+  {
+    id: TriviaSectionId.make("passport"),
+    order: 2,
+    title: "Mum's Passport",
+    theme: "Places, clues and travel stories",
+    durationMinutes: 8,
+    mode: "travel",
+    format: "Map and destination clues",
+    topics: [
+      "Bali",
+      "Fiji",
+      "Vanuatu",
+      "Tahiti",
+      "Spain",
+      "Portugal",
+      "New Zealand",
+      "Sri Lanka",
+      "Hawaii",
+    ],
+  },
+  {
+    id: TriviaSectionId.make("living-art-gallery"),
+    order: 3,
+    title: "The Living Art Gallery",
+    theme: "Make the picture, name the place",
+    durationMinutes: 10,
+    mode: "art",
+    format: "Visual matching and art-material clues",
+    topics: [
+      "watercolour",
+      "gouache",
+      "oil",
+      "acrylic",
+      "charcoal",
+      "graphite",
+      "ink",
+      "pastel",
+      "collage",
+      "printmaking",
+      "artworks and countries",
+    ],
+  },
+  {
+    id: TriviaSectionId.make("courts-crowns-and-myths"),
+    order: 4,
+    title: "Courts, Crowns and Myths",
+    theme: "History with a little drama",
+    durationMinutes: 9,
+    mode: "history",
+    format: "Team debate and confidence answers",
+    topics: [
+      "Tudors",
+      "Borgias",
+      "Wars of the Roses",
+      "English court history",
+      "Italian court history",
+      "Greek mythology",
+      "Roman mythology",
+    ],
+  },
+  {
+    id: TriviaSectionId.make("soundtrack"),
+    order: 5,
+    title: "Mum's Soundtrack",
+    theme: "Favourite songs, played together",
+    durationMinutes: 8,
+    mode: "music",
+    format: "Audio snippets and shared favourites",
+    topics: ["favourite songs", "song intros", "singalong bonus"],
+  },
+  {
+    id: TriviaSectionId.make("movies"),
+    order: 6,
+    title: "Mum at the Movies",
+    theme: "Favourite films and memorable scenes",
+    durationMinutes: 8,
+    mode: "films",
+    format: "Film clues and visual reveals",
+    topics: ["favourite movies", "film stills", "character clues"],
+  },
+  {
+    id: TriviaSectionId.make("birthday-finale"),
+    order: 7,
+    title: "The Birthday Finale",
+    theme: "One last wager, chosen by the room",
+    durationMinutes: 6,
+    mode: "finale",
+    format: "Lighthouse, architecture or all-in final",
+    topics: ["lighthouses", "architecture", "guess the volume", "final wager", "birthday toast"],
+  },
+] satisfies readonly TriviaSection[];
+
+export const triviaPlayMinutes = triviaSections.reduce(
+  (total, section) => total + section.durationMinutes,
+  0,
+);
+
+export const triviaJoinMinutes = 3;
+export const triviaSessionMinutes = triviaJoinMinutes + triviaPlayMinutes;
