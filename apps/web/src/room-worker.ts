@@ -20,10 +20,10 @@ const jsonHeaders = {
   "access-control-allow-origin": "*",
 } as const;
 
-const JsonResponseBody = Schema.Union([Schema.Struct({ error: Schema.String }), TriviaRoomState]);
+type JsonResponseBody = { readonly error: string } | TriviaRoomState;
 
-const jsonResponse = (body: typeof JsonResponseBody.Type, status = 200) =>
-  HttpServerResponse.schemaJson(JsonResponseBody)(body, { headers: jsonHeaders, status });
+const jsonResponse = (body: JsonResponseBody, status = 200) =>
+  HttpServerResponse.json(body, { headers: jsonHeaders, status });
 
 const RoomCodeFromString = Schema.String.pipe(
   Schema.decodeTo(RoomCode, {
