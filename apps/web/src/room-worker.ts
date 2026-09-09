@@ -15,7 +15,7 @@ import { decodePathSegments, decodeUrl } from "./lib/url";
 const stateKey = "room-state";
 
 const jsonHeaders = {
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "b3, content-type, traceparent",
   "access-control-allow-methods": "GET,POST,OPTIONS",
   "access-control-allow-origin": "*",
 } as const;
