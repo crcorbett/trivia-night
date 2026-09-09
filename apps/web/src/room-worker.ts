@@ -26,6 +26,8 @@ const JsonResponseBody = Schema.Union([Schema.Struct({ error: Schema.String }), 
 const jsonResponse = (body: typeof JsonResponseBody.Type, status = 200) =>
   HttpServerResponse.schemaJson(JsonResponseBody)(body, { headers: jsonHeaders, status });
 
+const pathFromRequestUrl = (url: string) => url.split("?", 1)[0] ?? url;
+
 class InvalidWebSocketMessageError extends Schema.TaggedError<InvalidWebSocketMessageError>()(
   "InvalidWebSocketMessageError",
   {},
@@ -132,7 +134,7 @@ export class TriviaRoom extends Cloudflare.DurableObject<TriviaRoom>()(
         applyAction,
         fetch: Effect.gen(function* () {
           const request = yield* HttpServerRequest.HttpServerRequest;
-          const code = roomCodeFromPath(new URL(request.url).pathname);
+          const code = roomCodeFromPath(pathFromRequestUrl(request.url));
           if (Option.isNone(code)) return yield* jsonResponse({ error: "Invalid room code" }, 400);
 
           if (request.headers.upgrade?.toLowerCase() === "websocket") {
@@ -235,17 +237,16 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
           return HttpServerResponse.empty({ headers: jsonHeaders, status: 204 });
         }
 
-        const url = new URL(request.url);
-        if (url.pathname === "/rpc") {
+        const path = pathFromRequestUrl(request.url);
+        if (path === "/rpc") {
           const handler = yield* rpcHandler;
           return yield* handler.pipe(
             Effect.map((response) => HttpServerResponse.setHeaders(response, jsonHeaders)),
           );
         }
-        if (!url.pathname.startsWith("/rooms/"))
-          return yield* jsonResponse({ error: "Not found" }, 404);
+        if (!path.startsWith("/rooms/")) return yield* jsonResponse({ error: "Not found" }, 404);
 
-        const code = roomCodeFromPath(url.pathname);
+        const code = roomCodeFromPath(path);
         if (Option.isNone(code)) return yield* jsonResponse({ error: "Invalid room code" }, 400);
         return yield* rooms.getByName(code.value).fetch(request);
       }),
