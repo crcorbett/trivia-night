@@ -176,7 +176,7 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
           return yield* getRoomState(code.value).pipe(
             Effect.matchEffect({
               onFailure: () => jsonResponse({ error: "The room could not be reached" }, 500),
-              onSuccess: jsonResponse,
+              onSuccess: () => jsonResponse({ error: "success branch" }),
             }),
           );
         }
