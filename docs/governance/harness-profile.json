@@ -63,7 +63,7 @@
   "boundaryFacts": [
     "The home, host, join, and display routes are owned by apps/web.",
     "The domain owns section and room Schemas, typed failures, and the pure room reducer.",
-    "Browser HTTP uses Fetch; server loaders use the in-process HTTP client; live room state uses the Worker WebSocket/HTTP adapter.",
+    "Browser HTTP uses Fetch; server loaders use the in-process HTTP client; live room state uses the Worker RPC/HTTP adapter through Effect Atom.",
     "Alchemy and Cloudflare state requires approved provider readback; repository configuration owns desired state only.",
     "Doppler may inject future provider credentials at command runtime; no repository secret file is an authority source.",
     "Pinned Effect and Alchemy source references are read-only Git submodules under .references/."
@@ -73,7 +73,7 @@
   ],
   "nonClaims": [
     "Local verification does not prove preview, production, provider, release, deployment, or publication behaviour.",
-    "The local room rehearsal does not prove cross-device remote WebSocket behaviour.",
+    "The local room rehearsal does not prove cross-device remote Worker RPC behaviour.",
     "Alchemy configuration is desired state and does not prove a deployed Cloudflare resource."
   ],
   "exceptions": []

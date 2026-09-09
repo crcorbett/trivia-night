@@ -8,7 +8,7 @@ export interface ITriviaService {
   readonly getSection: (
     id: TriviaSectionId,
   ) => Effect.Effect<TriviaSection, TriviaSectionNotFoundError>;
-  readonly listSections: () => Effect.Effect<readonly TriviaSection[]>;
+  readonly listSections: Effect.Effect<readonly TriviaSection[]>;
 }
 
 export class TriviaService extends Context.Service<TriviaService, ITriviaService>()(

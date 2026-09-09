@@ -11,7 +11,7 @@ export interface ITriviaHttpApiClient {
     TriviaSection,
     TriviaSectionNotFoundError | HttpClientError | Schema.SchemaError
   >;
-  readonly listSections: () => Effect.Effect<
+  readonly listSections: Effect.Effect<
     readonly TriviaSection[],
     HttpClientError | Schema.SchemaError
   >;

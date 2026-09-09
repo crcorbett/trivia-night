@@ -8,7 +8,7 @@ export const RpcHandlersLive = RpcGroup.toLayer(
     const trivia = yield* TriviaService;
     return RpcGroup.of({
       GetTriviaSection: ({ id }) => trivia.getSection(id),
-      ListTriviaSections: () => trivia.listSections(),
+      ListTriviaSections: () => trivia.listSections,
     });
   }),
 );

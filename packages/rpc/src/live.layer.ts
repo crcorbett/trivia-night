@@ -10,7 +10,7 @@ export const TriviaRpcClientLive = Layer.effect(TriviaRpcClient)(
     Effect.map((client) =>
       TriviaRpcClient.of({
         getSection: (id) => client.GetTriviaSection({ id }),
-        listSections: () => client.ListTriviaSections(),
+        listSections: client.ListTriviaSections(),
       }),
     ),
   ),

@@ -15,7 +15,7 @@ export const makeHttpApiInProcessClient = (
       Effect.map((client) =>
         HttpApiClientService.of({
           getSection: (id) => client.trivia.getSection({ params: { id } }),
-          listSections: () => client.trivia.listSections({}),
+          listSections: client.trivia.listSections({}),
         }),
       ),
     ),

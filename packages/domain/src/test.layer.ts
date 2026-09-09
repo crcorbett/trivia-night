@@ -11,15 +11,13 @@ export const makeTriviaTest = (sections: readonly TriviaSection[]) =>
       getSection: (id) =>
         Ref.update(requested, Array.append(id)).pipe(
           Effect.andThen(
-            Option.fromUndefinedOr(sections.find((section) => section.id === id)).pipe(
-              Option.match({
-                onNone: () => Effect.fail(new TriviaSectionNotFoundError({ id })),
-                onSome: Effect.succeed,
-              }),
+            Effect.fromOption(
+              Option.fromUndefinedOr(sections.find((section) => section.id === id)),
+              () => new TriviaSectionNotFoundError({ id }),
             ),
           ),
         ),
-      listSections: () => Effect.succeed(sections),
+      listSections: Effect.succeed(sections),
     });
     return { layer, observations: { requested } } as const;
   });

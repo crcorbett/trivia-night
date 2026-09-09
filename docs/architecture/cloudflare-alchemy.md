@@ -10,12 +10,12 @@ for live identity and must be read just in time.
 
 `apps/web/src/room-worker.ts` follows Alchemy's two-phase Effect pattern. The
 outer Durable Object Effect resolves `Cloudflare.DurableObjectState`; the
-inner Effect runs storage reads/writes and rebuilds hibernated WebSocket
-sessions. Room state is schema-decoded when read, schema-encoded when written,
-and persisted before an update is broadcast. Typed Durable Object methods
-serve `GetRoomState` and `ApplyTriviaRoomAction`, while the pure domain
-reducer remains the source of game rules. Local rehearsal uses browser storage
-and does not need provider credentials.
+inner Effect runs storage reads and writes. Room state is schema-decoded when
+read, schema-encoded when written and returned over HTTP, and persisted before
+an action completes. Typed Durable Object methods serve `GetRoomState` and
+`ApplyTriviaRoomAction`, while the pure domain reducer remains the source of
+game rules. Local rehearsal uses browser storage and does not need provider
+credentials.
 
 The repository deliberately owns no production zone, DNS route, secret,
 deployment workflow, or mutation runbook. When an approved Alchemy command

@@ -8,7 +8,7 @@ export interface ITriviaRpcClient {
   readonly getSection: (
     id: TriviaSectionId,
   ) => Effect.Effect<TriviaSection, TriviaSectionNotFoundError | RpcClientError>;
-  readonly listSections: () => Effect.Effect<readonly TriviaSection[], RpcClientError>;
+  readonly listSections: Effect.Effect<readonly TriviaSection[], RpcClientError>;
 }
 
 export class TriviaRpcClient extends Context.Service<TriviaRpcClient, ITriviaRpcClient>()(

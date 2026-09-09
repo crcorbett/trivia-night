@@ -1,5 +1,5 @@
 import * as Cloudflare from "alchemy/Cloudflare";
-import { Array as EffectArray, Effect, Layer, Option, Schema, SchemaGetter } from "effect";
+import { Effect, Layer, Option, Schema, SchemaGetter } from "effect";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
@@ -20,15 +20,6 @@ const jsonHeaders = {
   "access-control-allow-origin": "*",
 } as const;
 
-type JsonResponseBody = { readonly error: string } | TriviaRoomState;
-
-const jsonResponse = (body: JsonResponseBody, status = 200) =>
-  HttpServerResponse.json(body, { headers: jsonHeaders, status }).pipe(
-    Effect.tap((response) =>
-      Effect.log("room response", response.status, typeof response.status, response.body._tag),
-    ),
-  );
-
 const RoomCodeFromString = Schema.String.pipe(
   Schema.decodeTo(RoomCode, {
     decode: SchemaGetter.toUpperCase<string>(),
@@ -36,19 +27,12 @@ const RoomCodeFromString = Schema.String.pipe(
   }),
 );
 
-const decodeRoomPrefix = Schema.decodeUnknownOption(Schema.Literal("rooms"));
-const decodeRoomCode = Schema.decodeOption(RoomCodeFromString);
-
-const roomCodeFromPath = (path: string) =>
-  decodePathSegments(path).pipe(
-    Option.flatMap((segments) =>
-      EffectArray.get(segments, 0).pipe(
-        Option.flatMap(decodeRoomPrefix),
-        Option.flatMap(() => EffectArray.get(segments, 1)),
-        Option.flatMap(decodeRoomCode),
-      ),
-    ),
-  );
+const RpcPath = Schema.Tuple([Schema.Literal("rpc")]);
+const RoomsPathPrefix = Schema.Tuple([Schema.Literal("rooms")]);
+const RoomPath = Schema.Tuple([Schema.Literal("rooms"), RoomCodeFromString]);
+const decodeRpcPath = Schema.decodeUnknownOption(RpcPath);
+const decodeRoomsPathPrefix = Schema.decodeUnknownOption(RoomsPathPrefix);
+const decodeRoomPath = Schema.decodeUnknownOption(RoomPath);
 
 const decodeStoredState = (value: unknown) =>
   Schema.decodeUnknownEffect(TriviaRoomState)(value).pipe(
@@ -158,42 +142,100 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
           return HttpServerResponse.empty({ headers: jsonHeaders, status: 204 });
         }
 
-        const path = decodeUrl(request.originalUrl).pipe(Option.map((url) => url.pathname));
-        if (Option.isNone(path)) return yield* jsonResponse({ error: "Invalid request URL" }, 400);
-        if (path.value === "/rpc") {
+        const pathSegments = decodeUrl(request.originalUrl).pipe(
+          Option.flatMap((url) => decodePathSegments(url.pathname)),
+        );
+        if (Option.isNone(pathSegments))
+          return yield* HttpServerResponse.json(
+            { error: "Invalid request URL" },
+            { headers: jsonHeaders, status: 400 },
+          );
+        if (Option.isSome(decodeRpcPath(pathSegments.value))) {
           const handler = yield* rpcHandler;
           return yield* handler.pipe(
             Effect.map((response) => HttpServerResponse.setHeaders(response, jsonHeaders)),
           );
         }
-        if (!path.value.startsWith("/rooms/"))
-          return yield* jsonResponse({ error: "Not found" }, 404);
+        if (Option.isNone(decodeRoomsPathPrefix(pathSegments.value)))
+          return yield* HttpServerResponse.json(
+            { error: "Not found" },
+            { headers: jsonHeaders, status: 404 },
+          );
 
-        const code = roomCodeFromPath(path.value);
-        if (Option.isNone(code)) return yield* jsonResponse({ error: "Invalid room code" }, 400);
+        const roomPath = decodeRoomPath(pathSegments.value);
+        if (Option.isNone(roomPath))
+          return yield* HttpServerResponse.json(
+            { error: "Invalid room code" },
+            { headers: jsonHeaders, status: 400 },
+          );
+        const code = roomPath.value[1];
 
         if (request.method === "GET") {
-          return yield* getRoomState(code.value).pipe(
+          return yield* getRoomState(code).pipe(
             Effect.matchEffect({
-              onFailure: () => jsonResponse({ error: "The room could not be reached" }, 500),
-              onSuccess: () => jsonResponse({ error: "success branch" }),
+              onFailure: () =>
+                HttpServerResponse.json(
+                  { error: "The room could not be reached" },
+                  { headers: jsonHeaders, status: 500 },
+                ),
+              onSuccess: (roomState) =>
+                Schema.encodeEffect(TriviaRoomState)(roomState).pipe(
+                  Effect.matchEffect({
+                    onFailure: () =>
+                      HttpServerResponse.json(
+                        { error: "The room could not be reached" },
+                        { headers: jsonHeaders, status: 500 },
+                      ),
+                    onSuccess: (body) =>
+                      HttpServerResponse.json(body, { headers: jsonHeaders, status: 200 }),
+                  }),
+                ),
             }),
           );
         }
 
         if (request.method !== "POST")
-          return yield* jsonResponse({ error: "Method not allowed" }, 405);
+          return yield* HttpServerResponse.json(
+            { error: "Method not allowed" },
+            { headers: jsonHeaders, status: 405 },
+          );
 
         const body = yield* request.json.pipe(Effect.option);
-        if (Option.isNone(body)) return yield* jsonResponse({ error: "Invalid room action" }, 400);
+        if (Option.isNone(body))
+          return yield* HttpServerResponse.json(
+            { error: "Invalid room action" },
+            { headers: jsonHeaders, status: 400 },
+          );
         return yield* Schema.decodeUnknownEffect(TriviaRoomAction)(body.value).pipe(
           Effect.matchEffect({
-            onFailure: () => jsonResponse({ error: "Invalid room action" }, 400),
+            onFailure: () =>
+              HttpServerResponse.json(
+                { error: "Invalid room action" },
+                { headers: jsonHeaders, status: 400 },
+              ),
             onSuccess: (action) =>
-              applyRoomActionRemotely(code.value, action).pipe(
+              applyRoomActionRemotely(code, action).pipe(
                 Effect.matchEffect({
-                  onFailure: () => jsonResponse({ error: "The room could not be reached" }, 500),
-                  onSuccess: jsonResponse,
+                  onFailure: () =>
+                    HttpServerResponse.json(
+                      { error: "The room could not be reached" },
+                      { headers: jsonHeaders, status: 500 },
+                    ),
+                  onSuccess: (roomState) =>
+                    Schema.encodeEffect(TriviaRoomState)(roomState).pipe(
+                      Effect.matchEffect({
+                        onFailure: () =>
+                          HttpServerResponse.json(
+                            { error: "The room could not be reached" },
+                            { headers: jsonHeaders, status: 500 },
+                          ),
+                        onSuccess: (encoded) =>
+                          HttpServerResponse.json(encoded, {
+                            headers: jsonHeaders,
+                            status: 200,
+                          }),
+                      }),
+                    ),
                 }),
               ),
           }),

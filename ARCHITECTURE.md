@@ -10,10 +10,11 @@ framework codec adaptation.
 The root `alchemy.run.ts` imports the exported Effect Worker from
 `@trivia-night/web/worker` and yields it in the Alchemy stack. That Worker
 binds one Effect `TriviaRoom` Durable Object per room code and serves the
-typed room RPC contract plus the live WebSocket endpoint. The Durable Object
-uses Alchemy's Effect storage service and the pure domain reducer. The Website
-is built with `Cloudflare.Website.Vite` and receives the Worker URL as a
-build-time `VITE_ROOM_API_URL` value.
+typed room RPC contract. The browser uses Effect Atom to poll typed snapshots
+and send typed actions. The Durable Object uses Alchemy's Effect storage
+service and the pure domain reducer. The Website is built with
+`Cloudflare.Website.Vite` and receives the Worker URL as a build-time
+`VITE_ROOM_API_URL` value.
 
 Focused architecture decisions live under [`docs/architecture/`](docs/architecture/).
 Operational procedures live under [`docs/runbooks/`](docs/runbooks/); proof and

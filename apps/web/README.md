@@ -13,9 +13,8 @@ browser room connection.
 
 The browser room adapter uses local BroadcastChannel/localStorage when
 `VITE_ROOM_API_URL` is absent. A deployed build uses `@effect/atom-react` and
-the shared room RPC contract for room reads/actions. The Worker WebSocket is
-used only for live update notifications; those notifications refresh the
-typed room atom. Both endpoints are supplied by Alchemy.
+the shared room RPC contract for room reads/actions. `Atom.withRefresh` polls
+the typed room query every two seconds. The Worker URL is supplied by Alchemy.
 
 Use `bun --filter @trivia-night/web build:cloudflare` to check the Cloudflare-specific Vite
 configuration. This is still a local build; it does not deploy or read provider

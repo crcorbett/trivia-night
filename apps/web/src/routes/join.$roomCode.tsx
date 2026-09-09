@@ -16,7 +16,7 @@ function JoinRoom() {
 
   const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const decodedName = Schema.decodeUnknownResult(TeamName)(teamName);
+    const decodedName = Schema.decodeResult(TeamName)(teamName);
     if (Result.isFailure(decodedName)) {
       setFormError("Give your team a name, up to 32 characters.");
       return;
@@ -26,7 +26,7 @@ function JoinRoom() {
     setTeamName("");
   };
 
-  const validCode = Schema.decodeUnknownResult(RoomCode)(roomCode.trim().toUpperCase());
+  const validCode = Schema.decodeResult(RoomCode)(roomCode.trim().toUpperCase());
   const joinedTeams = room.state?.teams ?? [];
 
   return (

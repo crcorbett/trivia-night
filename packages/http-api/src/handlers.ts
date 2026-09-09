@@ -8,7 +8,7 @@ export const HttpApiHandlersLive = EffectHttpApiBuilder.group(HttpApiApi, "trivi
   Effect.gen(function* () {
     const trivia = yield* TriviaService;
     return handlers
-      .handle("listSections", () => trivia.listSections())
+      .handle("listSections", () => trivia.listSections)
       .handle("getSection", ({ params }) => trivia.getSection(params.id));
   }),
 );
