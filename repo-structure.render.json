@@ -111,7 +111,7 @@
     "oxfmt.config.ts": "a218078527b4bdc3bbb7d5dede59624a168c003dec423913def12d34bdf457aa",
     "vitest.config.ts": "e2d82ea95f62b4445f5738c567596ac2df83e1d3088b0c6d5c9bcc89cbb213bc",
     "knip.ts": "b35e27f13950ed3c2de72e19066d1b4f2e572aa7c129c92a39819f630140fdd5",
-    "alchemy.run.ts": "f4562880ad80d31593702b268f98d606d44ee381435b9f4d29a7f1a6bb15fac9",
+    "alchemy.run.ts": "893e224cd027c398666519a18c1fde8c374a784f41d79fa146662ca91e292cef",
     "tools/oxlint/policy.ts": "c4ba8d906eed74d282ec4661f612861c397c86ff69deb32ec98e70184156cc74",
     "docs/governance/harness-profile.json": "ad07bb8e4489a2b2df0aa71acdb7aaa50e3ad9c7b205c3579ca7969020d4383f",
     "tools/governance/validate_audit_artifacts.py": "bb6d416fc120d5755857c310214cb65ea619d5fd33b72e9268570e8942dda936",
