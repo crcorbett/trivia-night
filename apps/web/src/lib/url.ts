@@ -26,17 +26,3 @@ export const appendUrlPath = (url: URL, segments: readonly string[]) =>
       }),
     ),
   );
-
-export const toWebSocketUrl = (url: URL) =>
-  Option.flatMap(decodeUrl(url.toString()), (next) => {
-    switch (next.protocol) {
-      case "http:":
-        next.protocol = "ws:";
-        return Option.some(next);
-      case "https:":
-        next.protocol = "wss:";
-        return Option.some(next);
-      default:
-        return Option.none();
-    }
-  });

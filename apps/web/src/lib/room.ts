@@ -1,6 +1,7 @@
 import { Option, Result, Schema } from "effect";
 import { AsyncResult } from "effect/unstable/reactivity";
-import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { Atom } from "effect/unstable/reactivity";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { applyRoomAction, createInitialRoomState } from "@trivia-night/domain/room";
@@ -11,11 +12,9 @@ import {
   emptyRoomStateAtom,
   hasRemoteRoomApi,
   roomActionAtom,
-  roomApiUrl,
   roomKey,
   roomStateAtom,
 } from "./room-atoms";
-import { appendUrlPath, toWebSocketUrl } from "./url";
 
 type RoomListener = (state: TriviaRoomState) => void;
 
@@ -185,74 +184,15 @@ const useLocalRoom = (code: RoomCode | undefined) => {
 
 const useRemoteRoom = (code: RoomCode | undefined) => {
   const stateAtom = useMemo(
-    () => (hasRemoteRoomApi && code !== undefined ? roomStateAtom(code) : emptyRoomStateAtom),
+    () =>
+      hasRemoteRoomApi && code !== undefined
+        ? Atom.withRefresh(roomStateAtom(code), "2 seconds")
+        : emptyRoomStateAtom,
     [code],
   );
   const stateResult = useAtomValue(stateAtom);
   const actionResult = useAtomValue(roomActionAtom);
-  const refreshState = useAtomRefresh(stateAtom);
   const setAction = useAtomSet(roomActionAtom);
-  const webSocketUrl = useMemo(
-    () =>
-      hasRemoteRoomApi && code !== undefined && roomApiUrl !== undefined
-        ? Option.flatMap(appendUrlPath(roomApiUrl, ["rooms", code, "ws"]), toWebSocketUrl)
-        : Option.none(),
-    [code],
-  );
-  const [socketState, setSocketState] = useState<{
-    readonly code: RoomCode | undefined;
-    readonly connected: boolean;
-    readonly error: string | undefined;
-  }>({ code: undefined, connected: false, error: undefined });
-  const connectionState =
-    socketState.code === code ? socketState : { code, connected: false, error: undefined };
-
-  useEffect(() => {
-    if (!hasRemoteRoomApi || code === undefined || roomApiUrl === undefined) return;
-
-    let active = true;
-    if (Option.isNone(webSocketUrl)) return;
-    // The browser WebSocket is the platform boundary. Effect Atom owns the
-    // typed HTTP RPC reads/actions; socket events only invalidate that atom.
-    const socket = new WebSocket(webSocketUrl.value.toString());
-
-    socket.addEventListener("open", () => {
-      if (!active) return;
-      setSocketState({ code, connected: true, error: undefined });
-      refreshState();
-    });
-    socket.addEventListener("message", (event: MessageEvent<unknown>) => {
-      if (!active || typeof event.data !== "string") return;
-      if (Option.isNone(decodeStateJson(event.data))) {
-        setSocketState({
-          code,
-          connected: true,
-          error: "The room sent an unreadable update.",
-        });
-        return;
-      }
-      refreshState();
-    });
-    socket.addEventListener("error", () => {
-      if (active) {
-        setSocketState({ code, connected: false, error: "The room could not be reached." });
-      }
-    });
-    socket.addEventListener("close", () => {
-      if (active) {
-        setSocketState((current) => ({
-          code,
-          connected: false,
-          error: current.code === code ? current.error : undefined,
-        }));
-      }
-    });
-
-    return () => {
-      active = false;
-      socket.close();
-    };
-  }, [code, refreshState, webSocketUrl]);
 
   const state = Option.getOrUndefined(AsyncResult.value(stateResult));
   const actionError = AsyncResult.matchWithError(actionResult, {
@@ -277,14 +217,8 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
   );
 
   return {
-    connected: connectionState.connected,
-    error:
-      connectionState.error ??
-      (hasRemoteRoomApi && code !== undefined && Option.isNone(webSocketUrl)
-        ? "The room could not be reached."
-        : undefined) ??
-      Option.getOrUndefined(actionError) ??
-      Option.getOrUndefined(queryError),
+    connected: Option.isSome(AsyncResult.value(stateResult)),
+    error: Option.getOrUndefined(actionError) ?? Option.getOrUndefined(queryError),
     send,
     state: state ?? (code === undefined ? undefined : initialState(code)),
   } as const;
