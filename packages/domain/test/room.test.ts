@@ -38,5 +38,8 @@ describe("trivia room reducer", () => {
       teamName: "the bright sparks",
     });
     assert.isTrue(Result.isFailure(duplicate));
+    if (Result.isSuccess(duplicate)) return;
+    assert.strictEqual(duplicate.failure._tag, "TriviaRoomActionError");
+    assert.strictEqual(duplicate.failure.reason, "duplicate-team-name");
   });
 });

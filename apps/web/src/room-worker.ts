@@ -3,9 +3,11 @@ import { Array as EffectArray, Effect, Layer, Option, Schema, SchemaGetter } fro
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
+import type * as RpcClientError from "effect/unstable/rpc/RpcClientError";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
 
-import { TriviaRoomStateError } from "@trivia-night/domain/errors";
+import { TriviaRoomStateError, TriviaRoomUnavailableError } from "@trivia-night/domain/errors";
+import type { TriviaRoomActionError } from "@trivia-night/domain/errors";
 import { applyRoomAction, createInitialRoomState } from "@trivia-night/domain/room";
 import { triviaSections } from "@trivia-night/domain/sections";
 import { RoomCode, TriviaRoomAction, TriviaRoomState } from "@trivia-night/domain/schemas";
@@ -36,6 +38,33 @@ const decodeRoomPath = Schema.decodeUnknownOption(RoomPath);
 const decodeStoredState = (value: unknown) =>
   Schema.decodeUnknownEffect(TriviaRoomState)(value).pipe(
     Effect.mapError(() => new TriviaRoomStateError({ reason: "invalid-state" })),
+  );
+
+const mapGetRoomProxyFailure = (
+  effect: Effect.Effect<
+    TriviaRoomState,
+    TriviaRoomStateError | TriviaRoomUnavailableError | RpcClientError.RpcClientError
+  >,
+) =>
+  effect.pipe(
+    Effect.catchTag("RpcClientError", () =>
+      Effect.fail(new TriviaRoomUnavailableError({ reason: "rpc-client" })),
+    ),
+  );
+
+const mapApplyRoomProxyFailure = (
+  effect: Effect.Effect<
+    TriviaRoomState,
+    | TriviaRoomActionError
+    | TriviaRoomStateError
+    | TriviaRoomUnavailableError
+    | RpcClientError.RpcClientError
+  >,
+) =>
+  effect.pipe(
+    Effect.catchTag("RpcClientError", () =>
+      Effect.fail(new TriviaRoomUnavailableError({ reason: "rpc-client" })),
+    ),
   );
 
 export class TriviaRoom extends Cloudflare.RpcDurableObject<TriviaRoom>()(
@@ -106,25 +135,29 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
     const rooms = yield* TriviaRoom;
 
     const getRoomState = (code: RoomCode) =>
-      rooms.getByName(code).pipe(Effect.flatMap((room) => room.GetRoomState({ code })));
+      mapGetRoomProxyFailure(
+        rooms.getByName(code).pipe(Effect.flatMap((room) => room.GetRoomState({ code }))),
+      );
 
     const applyRoomActionRemotely = (code: RoomCode, action: TriviaRoomAction) =>
-      rooms
-        .getByName(code)
-        .pipe(Effect.flatMap((room) => room.ApplyTriviaRoomAction({ code, action })));
+      mapApplyRoomProxyFailure(
+        rooms
+          .getByName(code)
+          .pipe(Effect.flatMap((room) => room.ApplyTriviaRoomAction({ code, action }))),
+      );
 
     const handlersLayer = RoomRpcGroup.toLayer(
       Effect.succeed(
         RoomRpcGroup.of({
-          GetRoomState: ({ code }) => getRoomState(code).pipe(Effect.orDie),
-          ApplyTriviaRoomAction: ({ code, action }) =>
-            applyRoomActionRemotely(code, action).pipe(Effect.orDie),
+          GetRoomState: ({ code }) => getRoomState(code),
+          ApplyTriviaRoomAction: ({ code, action }) => applyRoomActionRemotely(code, action),
         }),
       ),
     );
+    const rpcLayer = handlersLayer.pipe(Layer.provideMerge(RpcSerialization.layerNdjson));
     const rpcHandler = RpcServer.toHttpEffect(RoomRpcGroup, {
       disableFatalDefects: true,
-    }).pipe(Effect.provide(Layer.mergeAll(handlersLayer, RpcSerialization.layerNdjson)));
+    }).pipe(Effect.provide(rpcLayer));
 
     return {
       fetch: Effect.gen(function* () {

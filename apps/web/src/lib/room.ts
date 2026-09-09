@@ -7,37 +7,9 @@ import { RoomCode } from "@trivia-night/domain/schemas";
 import type { TriviaRoomAction } from "@trivia-night/domain/schemas";
 
 import { emptyRoomStateAtom, roomActionAtom, roomKey, roomStateAtom } from "./room-atoms";
+import { describeRemoteError, RemoteRoomError } from "./room-errors";
 
-const describeRoomError = (reason: string) => {
-  switch (reason) {
-    case "duplicate-team-name":
-      return "That team name is already taken.";
-    case "room-not-in-lobby":
-      return "The room is already under way.";
-    case "room-not-live":
-      return "Start the game before changing the score.";
-    case "room-finished":
-      return "The game has finished.";
-    case "unknown-team":
-      return "That team is no longer in the room.";
-    default:
-      return "That action is not available yet.";
-  }
-};
-
-const describeRemoteError = (error: unknown) => {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "_tag" in error &&
-    error._tag === "TriviaRoomActionError" &&
-    "reason" in error &&
-    typeof error.reason === "string"
-  ) {
-    return describeRoomError(error.reason);
-  }
-  return "The room could not be reached.";
-};
+const decodeRemoteError = Schema.decodeUnknownOption(RemoteRoomError);
 
 const useRemoteRoom = (code: RoomCode | undefined) => {
   const stateAtom = useMemo(
@@ -52,13 +24,25 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
   const state = Option.getOrUndefined(AsyncResult.value(stateResult));
   const actionError = AsyncResult.matchWithError(actionResult, {
     onDefect: () => Option.some("The room could not be reached."),
-    onError: (error) => Option.some(describeRemoteError(error)),
+    onError: (error) =>
+      Option.some(
+        Option.match(decodeRemoteError(error), {
+          onNone: () => "The room could not be reached.",
+          onSome: describeRemoteError,
+        }),
+      ),
     onInitial: () => Option.none<string>(),
     onSuccess: () => Option.none<string>(),
   });
   const queryError = AsyncResult.matchWithError(stateResult, {
     onDefect: () => Option.some("The room could not be reached."),
-    onError: (error) => Option.some(describeRemoteError(error)),
+    onError: (error) =>
+      Option.some(
+        Option.match(decodeRemoteError(error), {
+          onNone: () => "The room could not be reached.",
+          onSome: describeRemoteError,
+        }),
+      ),
     onInitial: () => Option.none<string>(),
     onSuccess: () => Option.none<string>(),
   });

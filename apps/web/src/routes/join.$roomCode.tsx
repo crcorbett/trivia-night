@@ -40,23 +40,32 @@ function JoinRoom() {
           ) : (
             <>
               <p>
-                Room <strong>{validCode.success}</strong> is open. Add your team below.
+                Room <strong>{validCode.success}</strong>{" "}
+                {room.state?.status === "finished"
+                  ? "has finished."
+                  : room.state?.status === "live"
+                    ? "is under way."
+                    : "is open. Add your team below."}
               </p>
-              <form className="room-form" onSubmit={submit}>
-                <label className="sr-only" htmlFor="team-name">
-                  Team name
-                </label>
-                <input
-                  id="team-name"
-                  maxLength={32}
-                  onChange={(event) => setTeamName(event.target.value)}
-                  placeholder="The Bright Sparks"
-                  value={teamName}
-                />
-                <button className="button button-dark" type="submit">
-                  Join room
-                </button>
-              </form>
+              {room.state?.status === "lobby" ? (
+                <form className="room-form" onSubmit={submit}>
+                  <label className="sr-only" htmlFor="team-name">
+                    Team name
+                  </label>
+                  <input
+                    id="team-name"
+                    maxLength={32}
+                    onChange={(event) => setTeamName(event.target.value)}
+                    placeholder="The Bright Sparks"
+                    value={teamName}
+                  />
+                  <button className="button button-dark" type="submit">
+                    Join room
+                  </button>
+                </form>
+              ) : (
+                <p className="error-note">Joining is closed for this room.</p>
+              )}
               {formError === undefined ? null : <p className="error-note">{formError}</p>}
               {room.error === undefined ? null : <p className="error-note">{room.error}</p>}
             </>

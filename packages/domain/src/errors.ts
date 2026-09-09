@@ -19,3 +19,8 @@ export class TriviaRoomStateError extends Schema.TaggedError<TriviaRoomStateErro
   "TriviaRoomStateError",
   { reason: TriviaRoomStateErrorReason },
 ) {}
+
+export class TriviaRoomUnavailableError extends Schema.TaggedError<TriviaRoomUnavailableError>()(
+  "TriviaRoomUnavailableError",
+  { reason: Schema.Literal("rpc-client") },
+) {}

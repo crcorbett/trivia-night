@@ -37,13 +37,15 @@
       ]
     },
     {
-      "id": "ROOM-LOCAL-REHEARSAL",
+      "id": "ROOM-LIVE-REMOTE",
       "consumer": "Host, player, and display browsers",
-      "acceptedOutcome": "A local room can join teams, start, advance, score, and finish while all views share state.",
+      "acceptedOutcome": "A development-stage remote room can join teams, start, advance, score, and finish while all views share state.",
       "owningPaths": [
         "apps/web/src/lib/room.ts",
+        "apps/web/src/room-worker.ts",
         "apps/web/src/routes/",
-        "packages/domain/src/room.ts"
+        "packages/domain/src/room.ts",
+        "docs/critical-journeys/journeys.json"
       ]
     },
     {
@@ -73,7 +75,7 @@
   ],
   "nonClaims": [
     "Local verification does not prove preview, production, provider, release, deployment, or publication behaviour.",
-    "The local room rehearsal does not prove cross-device remote Worker RPC behaviour.",
+    "The development-stage remote room journey does not prove production behaviour.",
     "Alchemy configuration is desired state and does not prove a deployed Cloudflare resource."
   ],
   "exceptions": []

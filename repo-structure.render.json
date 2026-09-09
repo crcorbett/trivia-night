@@ -113,7 +113,7 @@
     "knip.ts": "b35e27f13950ed3c2de72e19066d1b4f2e572aa7c129c92a39819f630140fdd5",
     "alchemy.run.ts": "893e224cd027c398666519a18c1fde8c374a784f41d79fa146662ca91e292cef",
     "tools/oxlint/policy.ts": "c4ba8d906eed74d282ec4661f612861c397c86ff69deb32ec98e70184156cc74",
-    "docs/governance/harness-profile.json": "b6d50b10cb4a1bd7ee121ad67978e26d8121e1e537ab6c76cf4da85c2011e147",
+    "docs/governance/harness-profile.json": "7757ff060fcba7e09b618de2a69218e5962fecb61b104f45551db706d0800d71",
     "tools/governance/validate_audit_artifacts.py": "bb6d416fc120d5755857c310214cb65ea619d5fd33b72e9268570e8942dda936",
     "tools/governance/finalize_repository_receipt.py": "8dbf8bd310afb236571234cc7eaac1bfd88207ee67b8f0bebcfcc3d211528488"
   },

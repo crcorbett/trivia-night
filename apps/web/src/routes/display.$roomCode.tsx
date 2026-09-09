@@ -1,7 +1,13 @@
 import { triviaSections } from "@trivia-night/domain/sections";
+import type { TriviaRoomStatus } from "@trivia-night/domain/schemas";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { useRoom } from "../lib/room";
+
+const displayCopy = (status: TriviaRoomStatus | undefined, theme: string | undefined) =>
+  status === "finished"
+    ? "Final scores are in."
+    : (theme ?? "Join on your phone, then keep your best guesses close.");
 
 export const Route = createFileRoute("/display/$roomCode")({ component: DisplayRoom });
 
@@ -25,12 +31,11 @@ function DisplayRoom() {
                 : `Section ${(state?.currentSectionIndex ?? 0) + 1} of ${triviaSections.length}`}
           </p>
           <h1 className="room-title">
-            {section?.title ??
-              (state?.status === "finished" ? "That is a wrap." : "Welcome, teams.")}
+            {state?.status === "finished"
+              ? "That is a wrap."
+              : (section?.title ?? "Welcome, teams.")}
           </h1>
-          <p className="hero-copy">
-            {section?.theme ?? "Join on your phone, then keep your best guesses close."}
-          </p>
+          <p className="hero-copy">{displayCopy(state?.status, section?.theme)}</p>
         </div>
         <div className="room-card room-card-yellow">
           <p className="eyebrow">Live score</p>
@@ -51,7 +56,7 @@ function DisplayRoom() {
         </div>
       </div>
       <footer className="page-footer">
-        <span>{room.connected ? "Live room connected" : "Local rehearsal room"}</span>
+        <span>{room.connected ? "Live room connected" : "Connecting to live room"}</span>
         <Link to="/host">Host controls →</Link>
       </footer>
     </main>

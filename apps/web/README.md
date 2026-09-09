@@ -11,10 +11,11 @@ browser room connection.
 - `/join/:roomCode`: team join screen for a phone.
 - `/display/:roomCode`: large-screen current section and scoreboard.
 
-The browser room adapter uses local BroadcastChannel/localStorage when
-`VITE_ROOM_API_URL` is absent. A deployed build uses `@effect/atom-react` and
-the shared room RPC contract for room reads/actions. `Atom.withRefresh` polls
-the typed room query every two seconds. The Worker URL is supplied by Alchemy.
+The browser room adapter always uses `@effect/atom-react` and the shared room
+RPC contract for room reads/actions. A runtime `VITE_ROOM_API_URL` points to
+the Room Worker; Alchemy supplies it in deployed builds. `Atom.withRefresh`
+polls the typed room query every two seconds. Without the URL, room pages show
+the connection state but cannot join or control a room.
 
 Use `bun --filter @trivia-night/web build:cloudflare` to check the Cloudflare-specific Vite
 configuration. This is still a local build; it does not deploy or read provider

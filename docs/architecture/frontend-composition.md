@@ -9,9 +9,8 @@ leaves, boolean-prop matrices, synchronization Effects, hooks that rename one
 call, and giant route components.
 
 The host, join, and display routes share only the browser room adapter. That
-adapter selects local BroadcastChannel/localStorage rehearsal or the deployed
-Worker connection at one platform boundary; the routes do not know about
-Durable Object storage. In the deployed mode, `@effect/atom-react` provides a
-shared `RegistryProvider` and `AtomRpc` client for typed room snapshots and
-actions. `Atom.withRefresh` polls the room query every two seconds, so the
-typed HTTP RPC remains the single remote read/write path.
+adapter connects to the Room Worker at one platform boundary; the routes do
+not know about Durable Object storage. `@effect/atom-react` provides a shared
+`RegistryProvider` and `AtomRpc` client for typed room snapshots and actions.
+`Atom.withRefresh` polls the room query every two seconds, so the typed HTTP
+RPC remains the single remote read/write path.

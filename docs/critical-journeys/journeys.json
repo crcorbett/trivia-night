@@ -23,10 +23,10 @@
       "nonClaims": ["Local proof does not establish a deployed provider route."]
     },
     {
-      "id": "ROOM-LOCAL-REHEARSAL",
+      "id": "ROOM-LIVE-REMOTE",
       "actorOrConsumer": "Host, player, and display browsers",
-      "boundary": "Browser room adapter",
-      "startingState": "The app runs without VITE_ROOM_API_URL, so local BroadcastChannel/localStorage rehearsal is selected.",
+      "boundary": "Browser room adapter and Cloudflare Room Worker",
+      "startingState": "The deployed app has VITE_ROOM_API_URL configured for the live Room Worker.",
       "inputs": [
         "GET /host",
         "GET /join/RAE60",
@@ -37,23 +37,21 @@
         "Add score",
         "Finish room"
       ],
-      "stepsOrProcedureOwner": "apps/web/src/lib/room.ts and packages/domain/src/room.ts",
+      "stepsOrProcedureOwner": "apps/web/src/lib/room.ts, apps/web/src/room-worker.ts, and packages/domain/src/room.ts",
       "expectedBehavior": [
         "The host can control the room and the player/display views receive the same serialisable state."
       ],
       "expectedSideEffects": [
-        "Only the named local browser storage key and BroadcastChannel are used."
+        "The named development room Durable Object stores the serialisable room state."
       ],
       "preservedInvariants": [
         "Every transition is accepted or rejected by the shared pure room reducer."
       ],
       "oracle": "The three views show matching room status, current section, joined team, and score after each action; invalid room codes fail closed.",
-      "environment": "local browser rehearsal",
-      "authority": "none",
+      "environment": "deployed development browser journey",
+      "authority": "dev_cooper Alchemy stage",
       "evidence": ["docs/proof/"],
-      "nonClaims": [
-        "Local rehearsal does not establish remote Worker, Durable Object, multi-device, or provider behaviour."
-      ]
+      "nonClaims": ["The development-stage journey does not establish production behaviour."]
     },
     {
       "id": "HTTP-SECTIONS",

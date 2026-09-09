@@ -14,17 +14,18 @@ bun install
 bun --filter web dev
 ```
 
-With no `VITE_ROOM_API_URL`, the host, player and display views rehearse in the
-browser using BroadcastChannel and localStorage. Alchemy supplies that URL for
-deployed rooms; deployment is an explicit operator action and is not run by
-the normal local checks. The Effect TS and Alchemy source references are
-available under [`.references/`](.references/); initialise them with
+The host, player and display views always use the remote Room Worker through
+Effect Atom. Alchemy supplies `VITE_ROOM_API_URL` for deployed rooms; local
+browser work needs that public Worker URL supplied at runtime. Without it, the
+room pages render but cannot connect. Deployment is an explicit operator action
+and is not run by the normal local checks. The Effect TS and Alchemy source
+references are available under [`.references/`](.references/); initialise them with
 `git submodule update --init --depth 1` after cloning.
 
-No secret is needed for local rehearsal. When a future approved Cloudflare or
-Alchemy command needs credentials, use Doppler to inject them for that command;
-do not create a committed `.env` file. Alchemy's deployment state is separate
-from Doppler's secret store.
+The public Room Worker URL does not require a browser secret. When a future
+approved Cloudflare or Alchemy command needs credentials, use Doppler to inject
+them for that command; do not create a committed `.env` file. Alchemy's
+deployment state is separate from Doppler's secret store.
 
 The repository gate is:
 
