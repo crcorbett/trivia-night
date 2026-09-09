@@ -1,123 +1,12 @@
 import { Option, Result, Schema } from "effect";
-import { AsyncResult } from "effect/unstable/reactivity";
-import { Atom } from "effect/unstable/reactivity";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
-import { applyRoomAction, createInitialRoomState } from "@trivia-night/domain/room";
-import { triviaSections } from "@trivia-night/domain/sections";
-import { RoomCode, TriviaRoomAction, TriviaRoomState } from "@trivia-night/domain/schemas";
+import { RoomCode } from "@trivia-night/domain/schemas";
+import type { TriviaRoomAction } from "@trivia-night/domain/schemas";
 
-import {
-  emptyRoomStateAtom,
-  hasRemoteRoomApi,
-  roomActionAtom,
-  roomKey,
-  roomStateAtom,
-} from "./room-atoms";
-
-type RoomListener = (state: TriviaRoomState) => void;
-
-interface RoomConnection {
-  readonly connected: boolean;
-  readonly error: string | undefined;
-  readonly send: (action: TriviaRoomAction) => void;
-  readonly start: (listener: RoomListener) => void;
-  readonly stop: () => void;
-}
-
-const TriviaRoomStateJson = Schema.fromJsonString(TriviaRoomState);
-const decodeState = Schema.decodeUnknownOption(TriviaRoomState);
-const decodeStateJson = Schema.decodeOption(TriviaRoomStateJson);
-const decodeAction = Schema.decodeUnknownOption(TriviaRoomAction);
-const encodeStateJson = Schema.encodeOption(TriviaRoomStateJson);
-
-const initialState = (code: RoomCode) => createInitialRoomState(code, triviaSections.length);
-
-const localStorageKey = (code: RoomCode) => `trivia-night:room:${code}`;
-
-const readLocalState = (code: RoomCode): TriviaRoomState => {
-  if (typeof window === "undefined") return initialState(code);
-  const stored = window.localStorage.getItem(localStorageKey(code));
-  if (stored === null) return initialState(code);
-  const decoded = decodeStateJson(stored);
-  return Option.isSome(decoded) ? decoded.value : initialState(code);
-};
-
-/** Browser-only adapter: local rehearsal uses BroadcastChannel and localStorage. */
-const makeLocalConnection = (code: RoomCode): RoomConnection => {
-  let state = initialState(code);
-  let listener: RoomListener | undefined;
-  let channel: BroadcastChannel | undefined;
-  let connected = false;
-  let error: string | undefined;
-
-  const publish = (next: TriviaRoomState) => {
-    const encoded = encodeStateJson(next);
-    if (Option.isNone(encoded)) {
-      error = "That update could not be saved.";
-      return;
-    }
-    state = next;
-    window.localStorage.setItem(localStorageKey(code), encoded.value);
-    // BroadcastChannel.postMessage has no targetOrigin argument.
-    // oxlint-disable-next-line unicorn/require-post-message-target-origin
-    channel?.postMessage(next);
-    listener?.(next);
-  };
-
-  return {
-    get connected() {
-      return connected;
-    },
-    get error() {
-      return error;
-    },
-    send: (action) => {
-      const decodedAction = decodeAction(action);
-      if (Option.isNone(decodedAction)) {
-        error = "That action could not be read.";
-        return;
-      }
-      const next = applyRoomAction(state, decodedAction.value);
-      if (Result.isFailure(next)) {
-        error = describeRoomError(next.failure.reason);
-        return;
-      }
-      error = undefined;
-      publish(next.success);
-    },
-    start: (nextListener) => {
-      listener = nextListener;
-      state = readLocalState(code);
-      connected = true;
-      channel =
-        typeof BroadcastChannel === "undefined"
-          ? undefined
-          : new BroadcastChannel(localStorageKey(code));
-      channel?.addEventListener("message", (event: MessageEvent<unknown>) => {
-        const next = decodeState(event.data);
-        if (Option.isNone(next)) return;
-        state = next.value;
-        listener?.(next.value);
-      });
-      window.addEventListener("storage", (event) => {
-        if (event.key !== localStorageKey(code) || event.newValue === null) return;
-        const next = decodeStateJson(event.newValue);
-        if (Option.isNone(next)) return;
-        state = next.value;
-        listener?.(next.value);
-      });
-      listener(state);
-    },
-    stop: () => {
-      channel?.close();
-      channel = undefined;
-      connected = false;
-      listener = undefined;
-    },
-  };
-};
+import { emptyRoomStateAtom, roomActionAtom, roomKey, roomStateAtom } from "./room-atoms";
 
 const describeRoomError = (reason: string) => {
   switch (reason) {
@@ -150,44 +39,10 @@ const describeRemoteError = (error: unknown) => {
   return "The room could not be reached.";
 };
 
-const useLocalRoom = (code: RoomCode | undefined) => {
-  const connection = useMemo(
-    () => (hasRemoteRoomApi || code === undefined ? undefined : makeLocalConnection(code)),
-    [code],
-  );
-  const [state, setState] = useState<TriviaRoomState | undefined>(() =>
-    code === undefined ? undefined : initialState(code),
-  );
-  const [, rerender] = useState(0);
-
-  useEffect(() => {
-    if (connection === undefined) return;
-    connection.start((next) => setState(next));
-    return connection.stop;
-  }, [connection]);
-
-  const send = useCallback(
-    (action: TriviaRoomAction) => {
-      connection?.send(action);
-      rerender((value) => value + 1);
-    },
-    [connection],
-  );
-
-  return {
-    connected: connection?.connected ?? false,
-    error: connection?.error,
-    send,
-    state,
-  } as const;
-};
-
 const useRemoteRoom = (code: RoomCode | undefined) => {
   const stateAtom = useMemo(
     () =>
-      hasRemoteRoomApi && code !== undefined
-        ? Atom.withRefresh(roomStateAtom(code), "2 seconds")
-        : emptyRoomStateAtom,
+      code === undefined ? emptyRoomStateAtom : Atom.withRefresh(roomStateAtom(code), "2 seconds"),
     [code],
   );
   const stateResult = useAtomValue(stateAtom);
@@ -210,7 +65,7 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
 
   const send = useCallback(
     (action: TriviaRoomAction) => {
-      if (!hasRemoteRoomApi || code === undefined) return;
+      if (code === undefined) return;
       setAction({ payload: { action, code }, reactivityKeys: [roomKey(code)] });
     },
     [code, setAction],
@@ -220,7 +75,7 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
     connected: Option.isSome(AsyncResult.value(stateResult)),
     error: Option.getOrUndefined(actionError) ?? Option.getOrUndefined(queryError),
     send,
-    state: state ?? (code === undefined ? undefined : initialState(code)),
+    state,
   } as const;
 };
 
@@ -230,15 +85,13 @@ export const useRoom = (rawCode: string) => {
     [rawCode],
   );
   const code = Result.isSuccess(codeResult) ? codeResult.success : undefined;
-  const local = useLocalRoom(code);
   const remote = useRemoteRoom(code);
-  const selected = hasRemoteRoomApi ? remote : local;
 
   return {
     code,
-    connected: selected.connected,
-    error: code === undefined ? "Use a room code with 3 to 8 letters or numbers." : selected.error,
-    send: selected.send,
-    state: selected.state,
+    connected: remote.connected,
+    error: code === undefined ? "Use a room code with 3 to 8 letters or numbers." : remote.error,
+    send: remote.send,
+    state: remote.state,
   } as const;
 };

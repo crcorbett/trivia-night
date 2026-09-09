@@ -9,7 +9,6 @@ import { RoomRpcGroup } from "@trivia-night/rpc/room";
 import { appendUrlPath, decodeUrl } from "./url";
 
 const roomApiUrlResult = decodeUrl(import.meta.env.VITE_ROOM_API_URL);
-export const hasRemoteRoomApi = Option.isSome(roomApiUrlResult);
 
 const rpcUrl = Option.match(roomApiUrlResult, {
   onNone: () => "/rpc",

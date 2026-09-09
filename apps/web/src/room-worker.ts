@@ -106,20 +106,12 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
     const rooms = yield* TriviaRoom;
 
     const getRoomState = (code: RoomCode) =>
-      Effect.scoped(
-        Effect.gen(function* () {
-          const room = yield* rooms.getByName(code);
-          return yield* room.GetRoomState({ code });
-        }),
-      );
+      rooms.getByName(code).pipe(Effect.flatMap((room) => room.GetRoomState({ code })));
 
     const applyRoomActionRemotely = (code: RoomCode, action: TriviaRoomAction) =>
-      Effect.scoped(
-        Effect.gen(function* () {
-          const room = yield* rooms.getByName(code);
-          return yield* room.ApplyTriviaRoomAction({ code, action });
-        }),
-      );
+      rooms
+        .getByName(code)
+        .pipe(Effect.flatMap((room) => room.ApplyTriviaRoomAction({ code, action })));
 
     const handlersLayer = RoomRpcGroup.toLayer(
       Effect.succeed(

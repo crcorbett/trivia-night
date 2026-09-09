@@ -70,7 +70,7 @@ function HostDesk() {
             </button>
           </div>
           <p className="room-status">
-            {state?.status ?? "connecting"} · {room.connected ? "connected" : "local rehearsal"}
+            {state?.status ?? "connecting"} · {room.connected ? "connected" : "connecting"}
           </p>
           {room.error === undefined ? null : <p className="error-note">{room.error}</p>}
         </section>
