@@ -1,6 +1,6 @@
 import * as Cloudflare from "alchemy/Cloudflare";
 import { RuntimeContext } from "alchemy/RuntimeContext";
-import { Effect, Layer, Option, Schema } from "effect";
+import { Array as EffectArray, Effect, Layer, Option, Schema, SchemaGetter } from "effect";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
@@ -12,6 +12,7 @@ import { applyRoomAction, createInitialRoomState } from "@trivia-night/domain/ro
 import { triviaSections } from "@trivia-night/domain/sections";
 import { RoomCode, TriviaRoomAction, TriviaRoomState } from "@trivia-night/domain/schemas";
 import { RoomRpcGroup } from "@trivia-night/rpc/room";
+import { decodePathSegments, decodeUrl } from "./lib/url";
 
 const stateKey = "room-state";
 
@@ -26,20 +27,31 @@ const JsonResponseBody = Schema.Union([Schema.Struct({ error: Schema.String }), 
 const jsonResponse = (body: typeof JsonResponseBody.Type, status = 200) =>
   HttpServerResponse.schemaJson(JsonResponseBody)(body, { headers: jsonHeaders, status });
 
-const pathFromRequestUrl = (url: string) => url.split("?", 1)[0] ?? url;
+const RoomCodeFromString = Schema.String.pipe(
+  Schema.decodeTo(RoomCode, {
+    decode: SchemaGetter.toUpperCase<string>(),
+    encode: SchemaGetter.passthrough<string>(),
+  }),
+);
+
+const decodeRoomPrefix = Schema.decodeUnknownOption(Schema.Literal("rooms"));
+const decodeRoomCode = Schema.decodeOption(RoomCodeFromString);
 
 class InvalidWebSocketMessageError extends Schema.TaggedError<InvalidWebSocketMessageError>()(
   "InvalidWebSocketMessageError",
   {},
 ) {}
 
-const roomCodeFromPath = (path: string) => {
-  const segments = path.split("/").filter(Boolean);
-  const rawCode = segments[0] === "rooms" ? segments[1] : undefined;
-  return rawCode === undefined
-    ? Option.none()
-    : Schema.decodeOption(RoomCode)(rawCode.toUpperCase());
-};
+const roomCodeFromPath = (path: string) =>
+  decodePathSegments(path).pipe(
+    Option.flatMap((segments) =>
+      EffectArray.get(segments, 0).pipe(
+        Option.flatMap(decodeRoomPrefix),
+        Option.flatMap(() => EffectArray.get(segments, 1)),
+        Option.flatMap(decodeRoomCode),
+      ),
+    ),
+  );
 
 const RoomSocketAttachment = Schema.Struct({ code: RoomCode });
 const TriviaRoomActionJson = Schema.fromJsonString(TriviaRoomAction);
@@ -134,7 +146,10 @@ export class TriviaRoom extends Cloudflare.DurableObject<TriviaRoom>()(
         applyAction,
         fetch: Effect.gen(function* () {
           const request = yield* HttpServerRequest.HttpServerRequest;
-          const code = roomCodeFromPath(pathFromRequestUrl(request.url));
+          const path = decodeUrl(request.originalUrl).pipe(Option.map((url) => url.pathname));
+          if (Option.isNone(path))
+            return yield* jsonResponse({ error: "Invalid request URL" }, 400);
+          const code = roomCodeFromPath(path.value);
           if (Option.isNone(code)) return yield* jsonResponse({ error: "Invalid room code" }, 400);
 
           if (request.headers.upgrade?.toLowerCase() === "websocket") {
@@ -237,16 +252,18 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
           return HttpServerResponse.empty({ headers: jsonHeaders, status: 204 });
         }
 
-        const path = pathFromRequestUrl(request.url);
-        if (path === "/rpc") {
+        const path = decodeUrl(request.originalUrl).pipe(Option.map((url) => url.pathname));
+        if (Option.isNone(path)) return yield* jsonResponse({ error: "Invalid request URL" }, 400);
+        if (path.value === "/rpc") {
           const handler = yield* rpcHandler;
           return yield* handler.pipe(
             Effect.map((response) => HttpServerResponse.setHeaders(response, jsonHeaders)),
           );
         }
-        if (!path.startsWith("/rooms/")) return yield* jsonResponse({ error: "Not found" }, 404);
+        if (!path.value.startsWith("/rooms/"))
+          return yield* jsonResponse({ error: "Not found" }, 404);
 
-        const code = roomCodeFromPath(path);
+        const code = roomCodeFromPath(path.value);
         if (Option.isNone(code)) return yield* jsonResponse({ error: "Invalid room code" }, 400);
         return yield* rooms.getByName(code.value).fetch(request);
       }),

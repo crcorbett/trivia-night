@@ -15,6 +15,7 @@ import {
   roomKey,
   roomStateAtom,
 } from "./room-atoms";
+import { appendUrlPath, toWebSocketUrl } from "./url";
 
 type RoomListener = (state: TriviaRoomState) => void;
 
@@ -191,6 +192,13 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
   const actionResult = useAtomValue(roomActionAtom);
   const refreshState = useAtomRefresh(stateAtom);
   const setAction = useAtomSet(roomActionAtom);
+  const webSocketUrl = useMemo(
+    () =>
+      hasRemoteRoomApi && code !== undefined && roomApiUrl !== undefined
+        ? Option.flatMap(appendUrlPath(roomApiUrl, ["rooms", code, "ws"]), toWebSocketUrl)
+        : Option.none(),
+    [code],
+  );
   const [socketState, setSocketState] = useState<{
     readonly code: RoomCode | undefined;
     readonly connected: boolean;
@@ -203,11 +211,10 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
     if (!hasRemoteRoomApi || code === undefined || roomApiUrl === undefined) return;
 
     let active = true;
-    const base = roomApiUrl.replace(/\/$/u, "");
-    const webSocketUrl = `${base.replace(/^http/u, "ws")}/rooms/${encodeURIComponent(code)}/ws`;
+    if (Option.isNone(webSocketUrl)) return;
     // The browser WebSocket is the platform boundary. Effect Atom owns the
     // typed HTTP RPC reads/actions; socket events only invalidate that atom.
-    const socket = new WebSocket(webSocketUrl);
+    const socket = new WebSocket(webSocketUrl.value.toString());
 
     socket.addEventListener("open", () => {
       if (!active) return;
@@ -245,7 +252,7 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
       active = false;
       socket.close();
     };
-  }, [code, refreshState]);
+  }, [code, refreshState, webSocketUrl]);
 
   const state = Option.getOrUndefined(AsyncResult.value(stateResult));
   const actionError = AsyncResult.matchWithError(actionResult, {
@@ -273,6 +280,9 @@ const useRemoteRoom = (code: RoomCode | undefined) => {
     connected: connectionState.connected,
     error:
       connectionState.error ??
+      (hasRemoteRoomApi && code !== undefined && Option.isNone(webSocketUrl)
+        ? "The room could not be reached."
+        : undefined) ??
       Option.getOrUndefined(actionError) ??
       Option.getOrUndefined(queryError),
     send,

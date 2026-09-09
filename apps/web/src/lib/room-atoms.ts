@@ -1,4 +1,4 @@
-import { Layer } from "effect";
+import { Layer, Option } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import { Atom, AsyncResult, AtomRpc } from "effect/unstable/reactivity";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
@@ -6,11 +6,20 @@ import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 
 import type { RoomCode, TriviaRoomState } from "@trivia-night/domain/schemas";
 import { RoomRpcGroup } from "@trivia-night/rpc/room";
+import { appendUrlPath, decodeUrl } from "./url";
 
-export const roomApiUrl = import.meta.env.VITE_ROOM_API_URL;
-export const hasRemoteRoomApi = roomApiUrl !== undefined && roomApiUrl !== "";
+const roomApiUrlResult = decodeUrl(import.meta.env.VITE_ROOM_API_URL);
+export const roomApiUrl = Option.getOrUndefined(roomApiUrlResult);
+export const hasRemoteRoomApi = Option.isSome(roomApiUrlResult);
 
-const rpcUrl = `${roomApiUrl?.replace(/\/$/u, "") ?? ""}/rpc`;
+const rpcUrl = Option.match(roomApiUrlResult, {
+  onNone: () => "/rpc",
+  onSome: (url) =>
+    Option.match(appendUrlPath(url, ["rpc"]), {
+      onNone: () => "/rpc",
+      onSome: (next) => next.toString(),
+    }),
+});
 
 const roomProtocol = RpcClient.layerProtocolHttp({ url: rpcUrl }).pipe(
   Layer.provide(FetchHttpClient.layer),
