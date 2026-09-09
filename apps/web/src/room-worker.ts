@@ -1,5 +1,5 @@
 import * as Cloudflare from "alchemy/Cloudflare";
-import { Effect, Layer, Option, Schema, SchemaGetter } from "effect";
+import { Array as EffectArray, Effect, Layer, Option, Schema, SchemaGetter } from "effect";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
@@ -28,12 +28,9 @@ const RoomCodeFromString = Schema.String.pipe(
 );
 
 const RpcPath = Schema.Tuple([Schema.Literal("rpc")]);
-const RoomsPathPrefix = Schema.TupleWithRest(Schema.Tuple([Schema.Literal("rooms")]), [
-  Schema.String,
-]);
 const RoomPath = Schema.Tuple([Schema.Literal("rooms"), RoomCodeFromString]);
 const decodeRpcPath = Schema.decodeUnknownOption(RpcPath);
-const decodeRoomsPathPrefix = Schema.decodeUnknownOption(RoomsPathPrefix);
+const decodeRoomsPathPrefix = Schema.decodeUnknownOption(Schema.Literal("rooms"));
 const decodeRoomPath = Schema.decodeUnknownOption(RoomPath);
 
 const decodeStoredState = (value: unknown) =>
@@ -158,7 +155,10 @@ export default class RoomWorker extends Cloudflare.Worker<RoomWorker>()(
             Effect.map((response) => HttpServerResponse.setHeaders(response, jsonHeaders)),
           );
         }
-        if (Option.isNone(decodeRoomsPathPrefix(pathSegments.value)))
+        const isRoomsPath = Option.isSome(
+          EffectArray.get(pathSegments.value, 0).pipe(Option.flatMap(decodeRoomsPathPrefix)),
+        );
+        if (!isRoomsPath)
           return yield* HttpServerResponse.json(
             { error: "Not found" },
             { headers: jsonHeaders, status: 404 },
