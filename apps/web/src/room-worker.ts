@@ -24,7 +24,9 @@ type JsonResponseBody = { readonly error: string } | TriviaRoomState;
 
 const jsonResponse = (body: JsonResponseBody, status = 200) =>
   HttpServerResponse.json(body, { headers: jsonHeaders, status }).pipe(
-    Effect.tap((response) => Effect.log(`room response status=${response.status}`)),
+    Effect.tap((response) =>
+      Effect.log("room response", response.status, typeof response.status, response.body._tag),
+    ),
   );
 
 const RoomCodeFromString = Schema.String.pipe(
