@@ -1,0 +1,6 @@
+[submodule ".references/alchemy"]
+	path = .references/alchemy
+	url = https://github.com/alchemy-run/alchemy.git
+[submodule ".references/effect"]
+	path = .references/effect
+	url = https://github.com/Effect-TS/effect.git
