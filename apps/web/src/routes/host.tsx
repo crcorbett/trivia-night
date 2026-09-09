@@ -48,6 +48,7 @@ function HostDesk() {
               className="control-button"
               disabled={state?.status !== "lobby"}
               onClick={() => room.send({ type: "start" })}
+              type="button"
             >
               Start game
             </button>
@@ -55,6 +56,7 @@ function HostDesk() {
               className="control-button"
               disabled={state?.status !== "live"}
               onClick={() => room.send({ type: "advance" })}
+              type="button"
             >
               Reveal next section
             </button>
@@ -62,6 +64,7 @@ function HostDesk() {
               className="control-button"
               disabled={state?.status !== "live"}
               onClick={() => room.send({ type: "finish" })}
+              type="button"
             >
               Finish game
             </button>
@@ -85,11 +88,13 @@ function HostDesk() {
                   <span className="score-actions">
                     <button
                       onClick={() => room.send({ type: "score", teamId: team.id, points: 1 })}
+                      type="button"
                     >
                       +1
                     </button>
                     <button
                       onClick={() => room.send({ type: "score", teamId: team.id, points: 3 })}
+                      type="button"
                     >
                       +3
                     </button>

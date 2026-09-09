@@ -2,7 +2,7 @@ import { RoomCode, TeamName } from "@trivia-night/domain/schemas";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Result, Schema } from "effect";
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 
 import { useRoom } from "../lib/room";
 
@@ -14,7 +14,7 @@ function JoinRoom() {
   const [teamName, setTeamName] = useState("");
   const [formError, setFormError] = useState<string | undefined>();
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const decodedName = Schema.decodeUnknownResult(TeamName)(teamName);
     if (Result.isFailure(decodedName)) {

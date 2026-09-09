@@ -43,7 +43,7 @@
     "format:check": "oxfmt --check .",
     "format": "oxfmt .",
     "lint": "oxlint .",
-    "test:lint-rules": "bun test tools/oxlint/policy.test.ts",
+    "test:lint-rules": "bun test tools/oxlint/policy.test.ts tools/oxlint/rules.test.ts",
     "validate:harness-profile": "python3 tools/governance/validate_audit_artifacts.py --profile docs/governance/harness-profile.json",
     "validate:governance": "python3 tools/governance/validate.py .",
     "check-types": "tsc --noEmit -p tsconfig.infrastructure.json && turbo run check-types",
@@ -53,6 +53,7 @@
     "knip:production": "knip --production --config knip.production.ts --strict",
     "changeset": "changeset",
     "changeset:status": "changeset status",
+    "prepare": "effect-tsgo patch --oxlint",
     "verification": "bun run validate:governance && bun run format:check && bun run lint && bun run test:lint-rules && bun run check-types && bun run knip && bun run knip:production && bun run test && bun run build"
   },
   "dependencies": {
@@ -61,12 +62,16 @@
   },
   "devDependencies": {
     "@changesets/cli": "3.0.2",
+    "@effect/tsgo": "0.43.0",
+    "@oxlint/plugins": "1.82.0",
     "@types/bun": "1.4.2",
     "knip": "6.35.0",
     "oxfmt": "0.67.0",
     "oxlint": "1.82.0",
+    "oxlint-tsgolint": "7.0.2001",
     "turbo": "2.10.12",
     "typescript": "catalog:typescript",
+    "ultracite": "7.11.0",
     "vitest": "catalog:testing"
   },
   "engines": {

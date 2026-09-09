@@ -72,5 +72,7 @@ export const applyRoomAction = (
         ),
       });
     }
+    default:
+      return failure("invalid-transition");
   }
 };

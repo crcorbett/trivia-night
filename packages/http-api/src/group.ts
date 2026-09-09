@@ -1,6 +1,5 @@
 import { TriviaSectionNotFoundError } from "@trivia-night/domain/errors";
-import { TriviaSection } from "@trivia-night/domain/schemas";
-import { TriviaSectionId } from "@trivia-night/domain/schemas";
+import { TriviaSection, TriviaSectionId } from "@trivia-night/domain/schemas";
 import { Schema } from "effect";
 import {
   HttpApiEndpoint as EffectHttpApiEndpoint,

@@ -55,6 +55,8 @@ const makeLocalConnection = (code: RoomCode): RoomConnection => {
   const publish = (next: TriviaRoomState) => {
     state = next;
     window.localStorage.setItem(localStorageKey(code), JSON.stringify(next));
+    // BroadcastChannel.postMessage has no targetOrigin argument.
+    // oxlint-disable-next-line unicorn/require-post-message-target-origin
     channel?.postMessage(next);
     listener?.(next);
   };
@@ -118,7 +120,7 @@ const makeRemoteConnection = (code: RoomCode, baseUrl: string): RoomConnection =
   let listener: RoomListener | undefined;
   let connected = false;
   let error: string | undefined;
-  const base = baseUrl.replace(/\/$/, "");
+  const base = baseUrl.replace(/\/$/u, "");
   const roomPath = `/rooms/${encodeURIComponent(code)}`;
 
   const receive = (value: unknown) => {
@@ -153,7 +155,7 @@ const makeRemoteConnection = (code: RoomCode, baseUrl: string): RoomConnection =
     },
     start: (nextListener) => {
       listener = nextListener;
-      const webSocketUrl = `${base.replace(/^http/, "ws")}${roomPath}/ws`;
+      const webSocketUrl = `${base.replace(/^http/u, "ws")}${roomPath}/ws`;
       socket = new WebSocket(webSocketUrl);
       socket.addEventListener("open", () => {
         connected = true;

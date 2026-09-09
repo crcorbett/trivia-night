@@ -102,12 +102,12 @@
     }
   },
   "configDigests": {
-    "package.json": "5564bc6c01e8edc182e2645a748e94bf2e76f696c88c1be8f437351e5ba63c77",
+    "package.json": "229b02858af43e647aa4b6fb68bf670e0f949c9a70e492feb46d0a8e1228eb0e",
     "tsconfig.base.json": "737e42f160918b1deeabd495b6bd7cbbd13cc0265330ab81fbfea9a704972af8",
     "tsconfig.infrastructure.json": "f5dad1f46e435bdcbd27506966f0c0fdbbd9c86d2803185f11e9436da04a66bd",
     "turbo.json": "f4fea8105932e3018d64927e2f837560a3b801c1ec9bf315e01deb127c5576ff",
-    "oxlint.config.ts": "4fe2100d534084c96b57c51b71c0a66bd81eb0fa9ef8c0c62d0a3710d847ae85",
-    "oxfmt.config.ts": "1a2b8eb761779f75e164708cd4c050a68c411b0d607e2822b78068f58549aff6",
+    "oxlint.config.ts": "15d51f7c7fd2435917f9ecaeeba7e8f574a5b9cdbbc717d9814b3908e921b32d",
+    "oxfmt.config.ts": "a218078527b4bdc3bbb7d5dede59624a168c003dec423913def12d34bdf457aa",
     "vitest.config.ts": "e2d82ea95f62b4445f5738c567596ac2df83e1d3088b0c6d5c9bcc89cbb213bc",
     "knip.ts": "b34a56dae8b30ab346af352406b8a37b33bded115959ac99a4f0151de7a3685e",
     "alchemy.run.ts": "60275dccec406384e1c05f8f90d1a43d380ff1ec015496c60a88bc4a786203dc",
@@ -118,7 +118,7 @@
   },
   "lockfile": {
     "path": "bun.lock",
-    "sha256": "b311125b11e4148ffe5e8ec1de6afea568d6eeda238c31d89ef4fec3253f9ad4",
+    "sha256": "02a943cbe3c8205c6ab432493346cb8801fcaa0ad38a45517edee9b60a2ee59e",
     "status": "generated",
     "owner": "bun install"
   },
