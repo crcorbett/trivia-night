@@ -12,13 +12,16 @@ browser room connection.
 - `/display/:roomCode`: large-screen current section and scoreboard.
 
 The browser room adapter uses local BroadcastChannel/localStorage when
-`VITE_ROOM_API_URL` is absent. A deployed build uses the Worker WebSocket and
-HTTP endpoint supplied by Alchemy.
+`VITE_ROOM_API_URL` is absent. A deployed build uses `@effect/atom-react` and
+the shared room RPC contract for room reads/actions. The Worker WebSocket is
+used only for live update notifications; those notifications refresh the
+typed room atom. Both endpoints are supplied by Alchemy.
 
-Use `bun --filter web build:cloudflare` to check the Cloudflare-specific Vite
+Use `bun --filter @trivia-night/web build:cloudflare` to check the Cloudflare-specific Vite
 configuration. This is still a local build; it does not deploy or read provider
 state.
 
-`room-worker.ts` is the only native Cloudflare runtime adapter in this app. It
-keeps Durable Object SQL and WebSocket Hibernation details at the edge and
-delegates every game transition to `@trivia-night/domain/room`.
+`room-worker.ts` contains the Effect Worker and Durable Object definitions.
+Alchemy yields the Worker from the root stack and bundles this file as its
+entrypoint. The Durable Object keeps hibernation and storage details at the
+edge and delegates every game transition to `@trivia-night/domain/room`.

@@ -9,6 +9,11 @@
       "types": "./dist/group.d.ts",
       "default": "./dist/group.js"
     },
+    "./room": {
+      "@trivia-night/source": "./src/room-group.ts",
+      "types": "./dist/room-group.d.ts",
+      "default": "./dist/room-group.js"
+    },
     "./handlers": {
       "@trivia-night/source": "./src/handlers.ts",
       "types": "./dist/handlers.d.ts",
@@ -40,6 +45,10 @@
       "./group": {
         "types": "./dist/group.d.ts",
         "default": "./dist/group.js"
+      },
+      "./room": {
+        "types": "./dist/room-group.d.ts",
+        "default": "./dist/room-group.js"
       },
       "./service": {
         "types": "./dist/service.d.ts",

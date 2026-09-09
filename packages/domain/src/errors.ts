@@ -11,3 +11,11 @@ export class TriviaRoomActionError extends Schema.TaggedError<TriviaRoomActionEr
   "TriviaRoomActionError",
   { reason: TriviaRoomActionErrorReason },
 ) {}
+
+export const TriviaRoomStateErrorReason = Schema.Literals(["invalid-state", "room-code-mismatch"]);
+export type TriviaRoomStateErrorReason = typeof TriviaRoomStateErrorReason.Type;
+
+export class TriviaRoomStateError extends Schema.TaggedError<TriviaRoomStateError>()(
+  "TriviaRoomStateError",
+  { reason: TriviaRoomStateErrorReason },
+) {}

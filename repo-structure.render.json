@@ -19,6 +19,7 @@
   },
   "selectedVersions": {
     "effect": "4.0.0-beta.107",
+    "@effect/atom-react": "4.0.0-beta.107",
     "@effect/platform-bun": "4.0.0-beta.107",
     "@effect/platform-node": "4.0.0-beta.107",
     "@effect/vitest": "4.0.0-beta.107",
@@ -102,15 +103,15 @@
     }
   },
   "configDigests": {
-    "package.json": "229b02858af43e647aa4b6fb68bf670e0f949c9a70e492feb46d0a8e1228eb0e",
+    "package.json": "63e98add57550a0c48846de1db45ecb3096f62a9d7d07631136beb513c556562",
     "tsconfig.base.json": "737e42f160918b1deeabd495b6bd7cbbd13cc0265330ab81fbfea9a704972af8",
     "tsconfig.infrastructure.json": "f5dad1f46e435bdcbd27506966f0c0fdbbd9c86d2803185f11e9436da04a66bd",
     "turbo.json": "f4fea8105932e3018d64927e2f837560a3b801c1ec9bf315e01deb127c5576ff",
     "oxlint.config.ts": "15d51f7c7fd2435917f9ecaeeba7e8f574a5b9cdbbc717d9814b3908e921b32d",
     "oxfmt.config.ts": "a218078527b4bdc3bbb7d5dede59624a168c003dec423913def12d34bdf457aa",
     "vitest.config.ts": "e2d82ea95f62b4445f5738c567596ac2df83e1d3088b0c6d5c9bcc89cbb213bc",
-    "knip.ts": "b34a56dae8b30ab346af352406b8a37b33bded115959ac99a4f0151de7a3685e",
-    "alchemy.run.ts": "60275dccec406384e1c05f8f90d1a43d380ff1ec015496c60a88bc4a786203dc",
+    "knip.ts": "b35e27f13950ed3c2de72e19066d1b4f2e572aa7c129c92a39819f630140fdd5",
+    "alchemy.run.ts": "f4562880ad80d31593702b268f98d606d44ee381435b9f4d29a7f1a6bb15fac9",
     "tools/oxlint/policy.ts": "c4ba8d906eed74d282ec4661f612861c397c86ff69deb32ec98e70184156cc74",
     "docs/governance/harness-profile.json": "ad07bb8e4489a2b2df0aa71acdb7aaa50e3ad9c7b205c3579ca7969020d4383f",
     "tools/governance/validate_audit_artifacts.py": "bb6d416fc120d5755857c310214cb65ea619d5fd33b72e9268570e8942dda936",
@@ -118,7 +119,7 @@
   },
   "lockfile": {
     "path": "bun.lock",
-    "sha256": "02a943cbe3c8205c6ab432493346cb8801fcaa0ad38a45517edee9b60a2ee59e",
+    "sha256": "fd28928616b0858f6fc0856a4b146c7be33eac11d19e26fdff1684376759c897",
     "status": "generated",
     "owner": "bun install"
   },
@@ -127,6 +128,6 @@
   ],
   "nonClaims": [
     "Selected versions are not claimed to remain latest.",
-    "No Cloudflare resource was planned, deployed, or read back."
+    "No Cloudflare resource was deployed or read back; the current snapshot has only a read-only Alchemy plan."
   ]
 }

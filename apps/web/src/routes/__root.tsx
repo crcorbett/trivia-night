@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 import { createRootRoute, HeadContent, Link, Scripts } from "@tanstack/react-router";
+import { RegistryProvider } from "@effect/atom-react";
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -35,7 +36,7 @@ function RootDocument({ children }: { readonly children: ReactNode }) {
           </Link>
           <span className="header-note">Rae's birthday edition</span>
         </header>
-        {children}
+        <RegistryProvider>{children}</RegistryProvider>
         <Scripts />
       </body>
     </html>

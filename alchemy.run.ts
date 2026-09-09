@@ -3,15 +3,9 @@ import * as Cloudflare from "alchemy/Cloudflare";
 import { Stack } from "alchemy/Stack";
 import { Effect } from "effect";
 
-export const TriviaRoom = Cloudflare.DurableObject("TriviaRoom", {
-  className: "TriviaRoom",
-});
+import EffectRoomWorker from "@trivia-night/web/worker";
 
-export const RoomWorker = Cloudflare.Worker("RoomWorker", {
-  compatibility: { date: "2026-06-24", flags: ["nodejs_compat"] },
-  env: { TRIVIA_ROOM: TriviaRoom },
-  main: "./apps/web/src/room-worker.ts",
-});
+export const RoomWorker = EffectRoomWorker;
 
 export const Website = Cloudflare.Website.Vite("Website", {
   compatibility: { date: "2026-06-24", flags: ["nodejs_compat"] },

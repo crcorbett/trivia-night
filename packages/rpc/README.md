@@ -1,19 +1,22 @@
 # `@trivia-night/rpc`
 
 Effect RPC transport over `@trivia-night/domain`. Domain policy remains in the
-domain service; this package owns the section-catalogue RPC contract, handlers,
-clients, and server composition.
+domain service/reducer; this package owns the section-catalogue and room RPC
+contracts, handlers, clients, and server composition.
 
 ## Exports
 
 - `./group`: public RPC contract group.
+- `./room`: public room snapshot/action contract used by the Cloudflare Worker
+  and Effect Atom frontend client.
 - `./handlers`: server handler Layer.
 - `./service`: public RPC client service contract.
 - `./server`: HTTP/RPC server composition.
 - `./live`: production client Layer.
 - `./test`: deterministic in-process test Layer.
 
-The public operations are `listSections` and `getSection`.
+The public catalogue operations are `listSections` and `getSection`. The room
+operations are `GetRoomState` and `ApplyTriviaRoomAction`.
 
 ## Documentation impact
 

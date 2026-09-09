@@ -9,6 +9,9 @@
     "catalogs": {
       "effect": {
         "effect": "4.0.0-beta.107",
+        "@effect/atom-react": "4.0.0-beta.107",
+        "@effect/platform-bun": "4.0.0-beta.107",
+        "@effect/platform-node": "4.0.0-beta.107",
         "@effect/vitest": "4.0.0-beta.107"
       },
       "tanstack": {
@@ -57,11 +60,14 @@
     "verification": "bun run validate:governance && bun run format:check && bun run lint && bun run test:lint-rules && bun run check-types && bun run knip && bun run knip:production && bun run test && bun run build"
   },
   "dependencies": {
+    "@trivia-night/web": "workspace:*",
     "alchemy": "catalog:infrastructure",
     "effect": "catalog:effect"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.2",
+    "@effect/platform-bun": "catalog:effect",
+    "@effect/platform-node": "catalog:effect",
     "@effect/tsgo": "0.43.0",
     "@oxlint/plugins": "1.82.0",
     "@types/bun": "1.4.2",
@@ -73,6 +79,9 @@
     "typescript": "catalog:typescript",
     "ultracite": "7.11.0",
     "vitest": "catalog:testing"
+  },
+  "overrides": {
+    "@effect/platform-node-shared": "4.0.0-beta.107"
   },
   "engines": {
     "bun": ">=1.4.0"

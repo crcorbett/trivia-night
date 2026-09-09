@@ -1,8 +1,15 @@
 {
-  "name": "web",
+  "name": "@trivia-night/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./worker": {
+      "@trivia-night/source": "./src/room-worker.ts",
+      "types": "./src/room-worker.ts",
+      "default": "./src/room-worker.ts"
+    }
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && tsc --noEmit",
@@ -11,18 +18,19 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@effect/atom-react": "catalog:effect",
     "@tanstack/react-router": "catalog:tanstack",
     "@tanstack/react-start": "catalog:tanstack",
     "@trivia-night/domain": "workspace:*",
     "@trivia-night/http-api": "workspace:*",
     "@trivia-night/rpc": "workspace:*",
+    "alchemy": "catalog:infrastructure",
     "effect": "catalog:effect",
     "react": "catalog:react",
     "react-dom": "catalog:react"
   },
   "devDependencies": {
     "@alchemy.run/cloudflare-runtime": "catalog:infrastructure",
-    "@cloudflare/workers-types": "5.20260908.1",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@vitejs/plugin-react": "catalog:build",

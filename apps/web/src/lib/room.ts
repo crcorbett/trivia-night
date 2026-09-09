@@ -1,8 +1,20 @@
+import { Option, Result, Schema } from "effect";
+import { AsyncResult } from "effect/unstable/reactivity";
+import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { applyRoomAction, createInitialRoomState } from "@trivia-night/domain/room";
 import { triviaSections } from "@trivia-night/domain/sections";
 import { RoomCode, TriviaRoomAction, TriviaRoomState } from "@trivia-night/domain/schemas";
-import { Result, Schema } from "effect";
-import { useCallback, useEffect, useMemo, useState } from "react";
+
+import {
+  emptyRoomStateAtom,
+  hasRemoteRoomApi,
+  roomActionAtom,
+  roomApiUrl,
+  roomKey,
+  roomStateAtom,
+} from "./room-atoms";
 
 type RoomListener = (state: TriviaRoomState) => void;
 
@@ -14,23 +26,11 @@ interface RoomConnection {
   readonly stop: () => void;
 }
 
-const parseJson = (value: string): unknown => {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return undefined;
-  }
-};
-
-const decodeState = (value: unknown): TriviaRoomState | undefined => {
-  const decoded = Schema.decodeUnknownResult(TriviaRoomState)(value);
-  return Result.isSuccess(decoded) ? decoded.success : undefined;
-};
-
-const decodeAction = (value: unknown): TriviaRoomAction | undefined => {
-  const decoded = Schema.decodeUnknownResult(TriviaRoomAction)(value);
-  return Result.isSuccess(decoded) ? decoded.success : undefined;
-};
+const TriviaRoomStateJson = Schema.fromJsonString(TriviaRoomState);
+const decodeState = Schema.decodeUnknownOption(TriviaRoomState);
+const decodeStateJson = Schema.decodeOption(TriviaRoomStateJson);
+const decodeAction = Schema.decodeUnknownOption(TriviaRoomAction);
+const encodeStateJson = Schema.encodeOption(TriviaRoomStateJson);
 
 const initialState = (code: RoomCode) => createInitialRoomState(code, triviaSections.length);
 
@@ -39,9 +39,9 @@ const localStorageKey = (code: RoomCode) => `trivia-night:room:${code}`;
 const readLocalState = (code: RoomCode): TriviaRoomState => {
   if (typeof window === "undefined") return initialState(code);
   const stored = window.localStorage.getItem(localStorageKey(code));
-  return stored === null
-    ? initialState(code)
-    : (decodeState(parseJson(stored)) ?? initialState(code));
+  if (stored === null) return initialState(code);
+  const decoded = decodeStateJson(stored);
+  return Option.isSome(decoded) ? decoded.value : initialState(code);
 };
 
 /** Browser-only adapter: local rehearsal uses BroadcastChannel and localStorage. */
@@ -53,8 +53,13 @@ const makeLocalConnection = (code: RoomCode): RoomConnection => {
   let error: string | undefined;
 
   const publish = (next: TriviaRoomState) => {
+    const encoded = encodeStateJson(next);
+    if (Option.isNone(encoded)) {
+      error = "That update could not be saved.";
+      return;
+    }
     state = next;
-    window.localStorage.setItem(localStorageKey(code), JSON.stringify(next));
+    window.localStorage.setItem(localStorageKey(code), encoded.value);
     // BroadcastChannel.postMessage has no targetOrigin argument.
     // oxlint-disable-next-line unicorn/require-post-message-target-origin
     channel?.postMessage(next);
@@ -70,11 +75,11 @@ const makeLocalConnection = (code: RoomCode): RoomConnection => {
     },
     send: (action) => {
       const decodedAction = decodeAction(action);
-      if (decodedAction === undefined) {
+      if (Option.isNone(decodedAction)) {
         error = "That action could not be read.";
         return;
       }
-      const next = applyRoomAction(state, decodedAction);
+      const next = applyRoomAction(state, decodedAction.value);
       if (Result.isFailure(next)) {
         error = describeRoomError(next.failure.reason);
         return;
@@ -92,16 +97,16 @@ const makeLocalConnection = (code: RoomCode): RoomConnection => {
           : new BroadcastChannel(localStorageKey(code));
       channel?.addEventListener("message", (event: MessageEvent<unknown>) => {
         const next = decodeState(event.data);
-        if (next === undefined) return;
-        state = next;
-        listener?.(next);
+        if (Option.isNone(next)) return;
+        state = next.value;
+        listener?.(next.value);
       });
       window.addEventListener("storage", (event) => {
         if (event.key !== localStorageKey(code) || event.newValue === null) return;
-        const next = decodeState(parseJson(event.newValue));
-        if (next === undefined) return;
-        state = next;
-        listener?.(next);
+        const next = decodeStateJson(event.newValue);
+        if (Option.isNone(next)) return;
+        state = next.value;
+        listener?.(next.value);
       });
       listener(state);
     },
@@ -113,80 +118,6 @@ const makeLocalConnection = (code: RoomCode): RoomConnection => {
     },
   };
 };
-
-/** Browser-only adapter: deployed rooms use the Worker WebSocket and HTTP API. */
-const makeRemoteConnection = (code: RoomCode, baseUrl: string): RoomConnection => {
-  let socket: WebSocket | undefined;
-  let listener: RoomListener | undefined;
-  let connected = false;
-  let error: string | undefined;
-  const base = baseUrl.replace(/\/$/u, "");
-  const roomPath = `/rooms/${encodeURIComponent(code)}`;
-
-  const receive = (value: unknown) => {
-    const next = decodeState(value);
-    if (next === undefined) {
-      error = "The room sent an unreadable update.";
-      return;
-    }
-    error = undefined;
-    listener?.(next);
-  };
-
-  return {
-    get connected() {
-      return connected;
-    },
-    get error() {
-      return error;
-    },
-    send: (action) => {
-      // Fetch is intentionally kept at this browser/Worker adapter boundary.
-      void fetch(`${base}${roomPath}`, {
-        body: JSON.stringify(action),
-        headers: { "content-type": "application/json" },
-        method: "POST",
-      })
-        .then((response) => response.json())
-        .then(receive)
-        .catch(() => {
-          error = "The room could not be reached.";
-        });
-    },
-    start: (nextListener) => {
-      listener = nextListener;
-      const webSocketUrl = `${base.replace(/^http/u, "ws")}${roomPath}/ws`;
-      socket = new WebSocket(webSocketUrl);
-      socket.addEventListener("open", () => {
-        connected = true;
-        error = undefined;
-      });
-      socket.addEventListener("message", (event: MessageEvent<unknown>) => {
-        if (typeof event.data !== "string") return;
-        receive(parseJson(event.data));
-      });
-      socket.addEventListener("error", () => {
-        error = "The room could not be reached.";
-      });
-      socket.addEventListener("close", () => {
-        connected = false;
-      });
-    },
-    stop: () => {
-      socket?.close();
-      socket = undefined;
-      connected = false;
-      listener = undefined;
-    },
-  };
-};
-
-const roomApiUrl = import.meta.env.VITE_ROOM_API_URL;
-
-const makeConnection = (code: RoomCode): RoomConnection =>
-  roomApiUrl === undefined || roomApiUrl === ""
-    ? makeLocalConnection(code)
-    : makeRemoteConnection(code, roomApiUrl);
 
 const describeRoomError = (reason: string) => {
   switch (reason) {
@@ -205,13 +136,25 @@ const describeRoomError = (reason: string) => {
   }
 };
 
-export const useRoom = (rawCode: string) => {
-  const codeResult = useMemo(
-    () => Schema.decodeUnknownResult(RoomCode)(rawCode.trim().toUpperCase()),
-    [rawCode],
+const describeRemoteError = (error: unknown) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "_tag" in error &&
+    error._tag === "TriviaRoomActionError" &&
+    "reason" in error &&
+    typeof error.reason === "string"
+  ) {
+    return describeRoomError(error.reason);
+  }
+  return "The room could not be reached.";
+};
+
+const useLocalRoom = (code: RoomCode | undefined) => {
+  const connection = useMemo(
+    () => (hasRemoteRoomApi || code === undefined ? undefined : makeLocalConnection(code)),
+    [code],
   );
-  const code = Result.isSuccess(codeResult) ? codeResult.success : undefined;
-  const connection = useMemo(() => (code === undefined ? undefined : makeConnection(code)), [code]);
   const [state, setState] = useState<TriviaRoomState | undefined>(() =>
     code === undefined ? undefined : initialState(code),
   );
@@ -232,11 +175,126 @@ export const useRoom = (rawCode: string) => {
   );
 
   return {
-    code,
     connected: connection?.connected ?? false,
-    error:
-      code === undefined ? "Use a room code with 3 to 8 letters or numbers." : connection?.error,
+    error: connection?.error,
     send,
     state,
+  } as const;
+};
+
+const useRemoteRoom = (code: RoomCode | undefined) => {
+  const stateAtom = useMemo(
+    () => (hasRemoteRoomApi && code !== undefined ? roomStateAtom(code) : emptyRoomStateAtom),
+    [code],
+  );
+  const stateResult = useAtomValue(stateAtom);
+  const actionResult = useAtomValue(roomActionAtom);
+  const refreshState = useAtomRefresh(stateAtom);
+  const setAction = useAtomSet(roomActionAtom);
+  const [socketState, setSocketState] = useState<{
+    readonly code: RoomCode | undefined;
+    readonly connected: boolean;
+    readonly error: string | undefined;
+  }>({ code: undefined, connected: false, error: undefined });
+  const connectionState =
+    socketState.code === code ? socketState : { code, connected: false, error: undefined };
+
+  useEffect(() => {
+    if (!hasRemoteRoomApi || code === undefined || roomApiUrl === undefined) return;
+
+    let active = true;
+    const base = roomApiUrl.replace(/\/$/u, "");
+    const webSocketUrl = `${base.replace(/^http/u, "ws")}/rooms/${encodeURIComponent(code)}/ws`;
+    // The browser WebSocket is the platform boundary. Effect Atom owns the
+    // typed HTTP RPC reads/actions; socket events only invalidate that atom.
+    const socket = new WebSocket(webSocketUrl);
+
+    socket.addEventListener("open", () => {
+      if (!active) return;
+      setSocketState({ code, connected: true, error: undefined });
+      refreshState();
+    });
+    socket.addEventListener("message", (event: MessageEvent<unknown>) => {
+      if (!active || typeof event.data !== "string") return;
+      if (Option.isNone(decodeStateJson(event.data))) {
+        setSocketState({
+          code,
+          connected: true,
+          error: "The room sent an unreadable update.",
+        });
+        return;
+      }
+      refreshState();
+    });
+    socket.addEventListener("error", () => {
+      if (active) {
+        setSocketState({ code, connected: false, error: "The room could not be reached." });
+      }
+    });
+    socket.addEventListener("close", () => {
+      if (active) {
+        setSocketState((current) => ({
+          code,
+          connected: false,
+          error: current.code === code ? current.error : undefined,
+        }));
+      }
+    });
+
+    return () => {
+      active = false;
+      socket.close();
+    };
+  }, [code, refreshState]);
+
+  const state = Option.getOrUndefined(AsyncResult.value(stateResult));
+  const actionError = AsyncResult.matchWithError(actionResult, {
+    onDefect: () => Option.some("The room could not be reached."),
+    onError: (error) => Option.some(describeRemoteError(error)),
+    onInitial: () => Option.none<string>(),
+    onSuccess: () => Option.none<string>(),
+  });
+  const queryError = AsyncResult.matchWithError(stateResult, {
+    onDefect: () => Option.some("The room could not be reached."),
+    onError: (error) => Option.some(describeRemoteError(error)),
+    onInitial: () => Option.none<string>(),
+    onSuccess: () => Option.none<string>(),
+  });
+
+  const send = useCallback(
+    (action: TriviaRoomAction) => {
+      if (!hasRemoteRoomApi || code === undefined) return;
+      setAction({ payload: { action, code }, reactivityKeys: [roomKey(code)] });
+    },
+    [code, setAction],
+  );
+
+  return {
+    connected: connectionState.connected,
+    error:
+      connectionState.error ??
+      Option.getOrUndefined(actionError) ??
+      Option.getOrUndefined(queryError),
+    send,
+    state: state ?? (code === undefined ? undefined : initialState(code)),
+  } as const;
+};
+
+export const useRoom = (rawCode: string) => {
+  const codeResult = useMemo(
+    () => Schema.decodeResult(RoomCode)(rawCode.trim().toUpperCase()),
+    [rawCode],
+  );
+  const code = Result.isSuccess(codeResult) ? codeResult.success : undefined;
+  const local = useLocalRoom(code);
+  const remote = useRemoteRoom(code);
+  const selected = hasRemoteRoomApi ? remote : local;
+
+  return {
+    code,
+    connected: selected.connected,
+    error: code === undefined ? "Use a room code with 3 to 8 letters or numbers." : selected.error,
+    send: selected.send,
+    state: selected.state,
   } as const;
 };

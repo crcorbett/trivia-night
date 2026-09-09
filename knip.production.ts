@@ -4,11 +4,10 @@ export default {
     ".": {
       entry: ["alchemy.run.ts", "vitest.tools.config.ts"],
       ignore: ["knip.ts", "tools/**"],
-      ignoreDependencies: ["alchemy", "effect"],
+      ignoreDependencies: ["@trivia-night/web", "alchemy", "effect"],
     },
     "apps/*": {
-      entry: ["src/routeTree.gen.ts", "src/room-worker.ts", "vite*.config.ts"],
-      ignoreDependencies: ["cloudflare"],
+      entry: ["src/routeTree.gen.ts", "vite*.config.ts"],
       ignoreIssues: {
         "src/routes/**/*.{ts,tsx}": ["exports"],
         "src/lib/runtime.server.ts": ["exports"],
