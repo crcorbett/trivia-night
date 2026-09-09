@@ -28,7 +28,9 @@ const RoomCodeFromString = Schema.String.pipe(
 );
 
 const RpcPath = Schema.Tuple([Schema.Literal("rpc")]);
-const RoomsPathPrefix = Schema.Tuple([Schema.Literal("rooms")]);
+const RoomsPathPrefix = Schema.TupleWithRest(Schema.Tuple([Schema.Literal("rooms")]), [
+  Schema.String,
+]);
 const RoomPath = Schema.Tuple([Schema.Literal("rooms"), RoomCodeFromString]);
 const decodeRpcPath = Schema.decodeUnknownOption(RpcPath);
 const decodeRoomsPathPrefix = Schema.decodeUnknownOption(RoomsPathPrefix);
